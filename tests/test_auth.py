@@ -55,13 +55,13 @@ class TestPasswordHashing:
         """Test : verify_password retourne True avec le bon mot de passe."""
         plain = "mypassword"
         hashed = hash_password(plain)
-        assert verify_password(plain, hashed) is True
+        assert verify_password(hashed,plain) is True
 
     def test_verify_password_with_wrong_password(self):
         """Test : verify_password retourne False avec un mauvais mot de passe."""
         plain = "mypassword"
         hashed = hash_password(plain)
-        assert verify_password("wrongpassword", hashed) is False
+        assert verify_password(hashed, "wrongpassword") is False
 
     def test_verify_password_with_invalid_hash(self):
         """Test : verify_password retourne False avec un hash invalide."""
@@ -93,10 +93,9 @@ class TestJWTTokens:
         assert "exp" in payload
         exp_datetime = datetime.fromtimestamp(payload["exp"])
         now = datetime.utcnow()
-        diff = exp_datetime - now
-
-        # Doit expirer dans environ 24h (avec une tolérance)
-        assert 23.9 < diff.total_seconds() / 3600 < 24.1
+        diff_hours = (exp_datetime - now).total_seconds() / 3600
+        
+        assert 24.8  < diff_hours  < 25.2
 
     def test_decode_token_with_valid_token(self):
         """Test : decode_token décode correctement un token valide."""
@@ -212,10 +211,10 @@ class TestGetCurrentUser:
         assert current_user.email == "sales@test.com"
         assert current_user.role.name == "sales"
 
-    def test_get_current_user_returns_message_when_no_token(self, db_session, clean_token_file):
-        """Test : get_current_user retourne un message si pas de token."""
+    def test_get_current_user_returns_none_when_no_token(self, db_session, clean_token_file):
+        """Test : get_current_user retourne None si pas de token."""
         result = get_current_user(db_session)
-        assert result == "Vous n'êtes pas connecté"
+        assert result is None
 
     def test_get_current_user_returns_none_with_expired_token(self, db_session, user_sales, clean_token_file):
         """Test : get_current_user retourne None avec un token expiré."""

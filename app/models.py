@@ -20,7 +20,7 @@ class User(Base):
     name: Mapped[str] = mapped_column(String(100), nullable=False)
     email: Mapped[str] = mapped_column(String(120), unique=True, nullable =False)
     password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
-    department: Mapped[str] = mapped_column(String(50))
+    department: Mapped[str] = mapped_column(String(50), nullable = True)
 
     role: Mapped["Role"] = relationship(back_populates="users")
     role_id: Mapped[int] = mapped_column(ForeignKey("roles.id"))
@@ -36,7 +36,7 @@ class Client(Base):
     phone_number : Mapped[str] = mapped_column(String(20), unique=True)
     company_name : Mapped[str] = mapped_column(String(100), nullable=False)
     created_at : Mapped[datetime] = mapped_column(default=lambda: datetime.now(UTC))
-    last_update : Mapped[datetime] = mapped_column(onupdate=func.now())
+    last_update : Mapped[datetime] = mapped_column(onupdate=func.now(), default=lambda: datetime.now(UTC))
 
     sales_contact_id : Mapped[int] = mapped_column(ForeignKey("users.id"))
     sales_contact: Mapped["User"] = relationship(back_populates="clients")
@@ -63,11 +63,11 @@ class Event(Base):
     start_date : Mapped[datetime]
     end_date : Mapped[datetime]
     location : Mapped[str]
-    attendes : Mapped[int]
-    notes : Mapped[str]
+    attendees : Mapped[int]
+    notes : Mapped[str]= mapped_column(nullable =True)
 
-    support_contact: Mapped["User"] = relationship(back_populates="events")
-    support_contact_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    support_contact: Mapped["User | None"] = relationship(back_populates="events")
+    support_contact_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable = True)
 
     
     contract_id : Mapped[int] = mapped_column(ForeignKey("contracts.id"))

@@ -1,3 +1,5 @@
+
+
 """
 Configuration pytest et fixtures réutilisables.
 
@@ -46,31 +48,37 @@ def db_session(engine):
 
 @pytest.fixture
 def role_sales(db_session):
-    """Crée un rôle 'sales' pour les tests."""
-    role = Role(name="sales")
-    db_session.add(role)
-    db_session.commit()
-    db_session.refresh(role)
+    """Crée un rôle 'sales' pour les tests (ou le réutilise s'il existe)."""
+    role = db_session.query(Role).filter(Role.name == "sales").first()
+    if not role:
+        role = Role(name="sales")
+        db_session.add(role)
+        db_session.commit()
+        db_session.refresh(role)
     return role
 
 
 @pytest.fixture
 def role_support(db_session):
-    """Crée un rôle 'support' pour les tests."""
-    role = Role(name="support")
-    db_session.add(role)
-    db_session.commit()
-    db_session.refresh(role)
+    """Crée un rôle 'support' pour les tests (ou le réutilise s'il existe)."""
+    role = db_session.query(Role).filter(Role.name == "support").first()
+    if not role:
+        role = Role(name="support")
+        db_session.add(role)
+        db_session.commit()
+        db_session.refresh(role)
     return role
 
 
 @pytest.fixture
 def role_gestion(db_session):
-    """Crée un rôle 'gestion' pour les tests."""
-    role = Role(name="gestion")
-    db_session.add(role)
-    db_session.commit()
-    db_session.refresh(role)
+    """Crée un rôle 'gestion' pour les tests (ou le réutilise s'il existe)."""
+    role = db_session.query(Role).filter(Role.name == "gestion").first()
+    if not role:
+        role = Role(name="gestion")
+        db_session.add(role)
+        db_session.commit()
+        db_session.refresh(role)
     return role
 
 
@@ -176,6 +184,14 @@ def all_users(db_session, all_roles):
 
     db_session.add_all([user_sales, user_support, user_gestion])
     db_session.commit()
+
+    # Forcer le chargement des relations 'role' pour éviter les lazy loading errors
+    db_session.refresh(user_sales)
+    db_session.refresh(user_support)
+    db_session.refresh(user_gestion)
+    _ = user_sales.role  # Force le chargement de la relation
+    _ = user_support.role
+    _ = user_gestion.role
 
     return {
         "sales": user_sales,

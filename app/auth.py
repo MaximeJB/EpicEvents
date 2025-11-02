@@ -1,7 +1,7 @@
 import jwt
 import os
 from sqlalchemy.orm import Session
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 from argon2 import PasswordHasher
 from app.models import User
 
@@ -13,7 +13,7 @@ def create_token(user_id, role):
     payload = { 
         "user_id" : user_id,
         "role": role,
-        "exp" : datetime.utcnow() + timedelta(hours=24)
+        "exp" : datetime.now(UTC) + timedelta(hours=24)
         }
     return jwt.encode(payload, SECRET_KEY, algorithm="HS256")
 
@@ -35,9 +35,9 @@ def load_token_locally() -> str | None:
 def hash_password(plain_password):
     return ph.hash(plain_password)
 
-def verify_password(plain_password, hashed_password):
+def verify_password(hashed_password, plain_password):
     try:
-        ph.verify(plain_password, hashed_password)
+        ph.verify(hashed_password, plain_password)
         return True
     except:
         return False
@@ -48,12 +48,15 @@ def login(db: Session, email, password):
     
     if not user:
         return False
-    if not verify_password(password, user.password_hash):
+    if not verify_password(user.password_hash, password):
         return False
     
     token = create_token(user.id, user.role.name)
     save_token(token)
     return True
+
+def logout(db, token):
+    delete(token)
 
 
 def get_current_user(db):
@@ -80,7 +83,7 @@ def get_current_user(db):
     token = load_token_locally()
 
     if token is None:
-        return f"Vous n'êtes pas connecté"
+        return None
     
     try : 
         payload =  decode_token(token)

@@ -285,7 +285,7 @@ class TestEventModel:
             start_date=datetime(2025, 6, 1, 14, 0),
             end_date=datetime(2025, 6, 1, 18, 0),
             location="Paris Convention Center",
-            attendes=100,
+            attendees=100,
             notes="Important conference",
             support_contact_id=user_support.id,
             contract_id=contract_sample.id
@@ -295,7 +295,7 @@ class TestEventModel:
 
         assert event.id is not None
         assert event.location == "Paris Convention Center"
-        assert event.attendes == 100
+        assert event.attendees == 100
 
     def test_event_has_contract_relationship(self, db_session, contract_sample, user_support):
         """Test : la relation Event -> Contract fonctionne."""
@@ -303,7 +303,7 @@ class TestEventModel:
             start_date=datetime(2025, 6, 1, 14, 0),
             end_date=datetime(2025, 6, 1, 18, 0),
             location="Test Location",
-            attendes=50,
+            attendees=50,
             notes="Test event",
             support_contact_id=user_support.id,
             contract_id=contract_sample.id
@@ -321,7 +321,7 @@ class TestEventModel:
             start_date=datetime(2025, 6, 1, 14, 0),
             end_date=datetime(2025, 6, 1, 18, 0),
             location="Test Location",
-            attendes=50,
+            attendees=50,
             notes="Test event",
             support_contact_id=user_support.id,
             contract_id=contract_sample.id
@@ -339,7 +339,7 @@ class TestEventModel:
             start_date=datetime(2025, 6, 1, 14, 0),
             end_date=datetime(2025, 6, 1, 18, 0),
             location="Location 1",
-            attendes=50,
+            attendees=50,
             notes="Event 1",
             support_contact_id=user_support.id,
             contract_id=contract_sample.id
@@ -348,7 +348,7 @@ class TestEventModel:
             start_date=datetime(2025, 7, 1, 14, 0),
             end_date=datetime(2025, 7, 1, 18, 0),
             location="Location 2",
-            attendes=75,
+            attendees=75,
             notes="Event 2",
             support_contact_id=user_support.id,
             contract_id=contract_sample.id

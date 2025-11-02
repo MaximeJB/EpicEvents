@@ -3,15 +3,16 @@ from app.models import Client
 from sqlalchemy.orm import Session
 
 
-@require_role("Sales", "gestion")
+@require_role("sales", "gestion")
 def create_client(db, current_user, name, phone, company):
     """
     Crée un client.
     
-    Permissions:
-        - Sales : ✓ (le client lui sera assigné automatiquement)
-        - Support : ✗
-        - Gestion : ✓
+    Permissions: 
+    
+        Sales : ✓ (le client  lui sera assigné automatiquement)
+        Support : ✗
+        Gestion : ✓
         
     Args:
         db: Session SQLAlchemy
@@ -89,7 +90,7 @@ def update_client(db, current_user, client_id: int, **kwargs):
          raise ValueError("Client not found")
     
     if current_user.role.name == "sales" and client.sales_contact_id != current_user.id:
-         raise PermissionError("L'utilisateur n'a pas la permission de faire ça")
+        raise PermissionError("L'utilisateur n'a pas la permission de faire ça")
     
     for key, value in kwargs.items():
          if hasattr(client, key):
