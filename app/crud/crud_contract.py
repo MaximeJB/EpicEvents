@@ -4,11 +4,11 @@ from app.models import Contract, Client
 
 
 @require_role("gestion")
-def create_contract(db, current_user, total_amount, remaining_amount, client_id):
+def create_contract(db, current_user, status,total_amount, remaining_amount, client_id):
     client = get_client(db, client_id)
     if not client: 
         raise ValueError("Client not found")
-    contract = Contract(total_amount=total_amount, remaining_amount=remaining_amount, client_id=client_id)
+    contract = Contract(status = status, total_amount=total_amount, remaining_amount=remaining_amount, client_id=client_id)
     db.add(contract)
     db.commit()
     db.refresh(contract)

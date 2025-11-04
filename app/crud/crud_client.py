@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 
 
 @require_role("sales", "gestion")
-def create_client(db, current_user, name, phone, company):
+def create_client(db, current_user, name, phone, company, email):
     """
     Crée un client.
     
@@ -26,6 +26,7 @@ def create_client(db, current_user, name, phone, company):
         PermissionError: Si le rôle n'est pas autorisé
     """
     client = Client(name=name, 
+                    email=email,
                     phone_number=phone, 
                     company_name=company,
                     sales_contact_id=current_user.id)
@@ -63,7 +64,7 @@ def get_client(db: Session, client_id):
     
 
 @require_role("sales", "gestion")
-def update_client(db, current_user, client_id: int, **kwargs):
+def update_client(db, current_user, client_id, **kwargs):
     """
     Met à jour un client.
     

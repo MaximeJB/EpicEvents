@@ -1,3 +1,5 @@
+
+
 import jwt
 import os
 from sqlalchemy.orm import Session
@@ -55,9 +57,6 @@ def login(db: Session, email, password):
     save_token(token)
     return True
 
-def logout(db, token):
-    delete(token)
-
 
 def get_current_user(db):
     """
@@ -96,28 +95,34 @@ def get_current_user(db):
     user = db.query(User).filter(User.id == user_id).first()
     return user
 
-def require_role(*allowed_roles): 
+def require_role(*allowed_roles):
     """
     Décorateur pour vérifier qu'un utilisateur a le bon rôle.
-    
+
     Usage dans crud.py:
         @require_role("sales", "gestion")
         def create_client(db, current_user, ...):
-            Cette fonction ne s'exécute que si current_user.role.name 
+            Cette fonction ne s'exécute que si current_user.role.name
             est "sales" ou "gestion"
             ...
-    
+
+    Les superusers (is_superuser=True) bypass toutes les vérifications de permissions.
+
     Args:
         *allowed_roles: Liste des rôles autorisés (strings)
-        
+
     Raises:
         PermissionError: Si le rôle de current_user n'est pas autorisé
     """
     def decorator(func):
         def wrapper(db, current_user, *args, **kwargs):
+            if hasattr(current_user, 'is_superuser') and current_user.is_superuser:
+                return func(db, current_user, *args, **kwargs)
+
             if current_user.role.name not in allowed_roles:
                 raise PermissionError(f"L'utilisateur ne dispose pas du bon rôle pour cette action")
             return func(db, current_user, *args, **kwargs)
         return wrapper
     return decorator
-    
+
+

@@ -10,7 +10,6 @@ class Role(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(50), unique=True, nullable=False)
-
     users: Mapped[list["User"]] = relationship("User", back_populates="role")
     
 class User(Base):
@@ -21,6 +20,7 @@ class User(Base):
     email: Mapped[str] = mapped_column(String(120), unique=True, nullable =False)
     password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
     department: Mapped[str] = mapped_column(String(50), nullable = True)
+    is_superuser: Mapped[bool] = mapped_column(default=False)
 
     role: Mapped["Role"] = relationship(back_populates="users")
     role_id: Mapped[int] = mapped_column(ForeignKey("roles.id"))
@@ -34,6 +34,7 @@ class Client(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String(50), nullable=False)
     phone_number : Mapped[str] = mapped_column(String(20), unique=True)
+    email: Mapped[str] = mapped_column(String(120), unique=True, nullable =False)
     company_name : Mapped[str] = mapped_column(String(100), nullable=False)
     created_at : Mapped[datetime] = mapped_column(default=lambda: datetime.now(UTC))
     last_update : Mapped[datetime] = mapped_column(onupdate=func.now(), default=lambda: datetime.now(UTC))

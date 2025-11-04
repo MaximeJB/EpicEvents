@@ -1,5 +1,6 @@
 from app.crud.crud_client import get_client
 from app.crud.crud_contract import get_contract
+from app.crud.crud_user import get_user_by_id
 from app.auth import require_role
 from app.models import Contract, Client, Event
 
@@ -46,5 +47,23 @@ def list_events(db, current_user):
         return db.query(Event).all()
     elif current_user.role.name == "support":
         return db.query(Event).filter(Event.support_contact_id == current_user.id).all()
-    else: 
+    else:
         return db.query(Event).join(Contract).join(Client).filter(Client.sales_contact_id == current_user.id).all()
+
+@require_role("gestion")
+def assign_support(db, current_user, event_id, support_user_id):
+    event = get_event(db, event_id)
+    if not event:
+        raise ValueError("L'événement n'existe pas")
+
+    support_user = get_user_by_id(db, support_user_id)
+    if not support_user:
+        raise ValueError("L'utilisateur support n'existe pas")
+
+    if support_user.role.name != "support":
+        raise ValueError("L'utilisateur doit avoir le rôle 'support'")
+
+    event.support_contact_id = support_user_id
+    db.commit()
+    db.refresh(event)
+    return event
