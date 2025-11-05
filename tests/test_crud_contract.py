@@ -27,6 +27,7 @@ class TestCreateContract:
         contract = create_contract(
             db=db_session,
             current_user=user_gestion,
+            status="pending",
             total_amount=Decimal("10000.00"),
             remaining_amount=Decimal("5000.00"),
             client_id=client_sample.id
@@ -42,6 +43,7 @@ class TestCreateContract:
         contract = create_contract(
             db=db_session,
             current_user=user_gestion,
+            status="pending",
             total_amount=Decimal("1000.00"),
             remaining_amount=Decimal("1000.00"),
             client_id=client_sample.id
@@ -55,6 +57,7 @@ class TestCreateContract:
             create_contract(
                 db=db_session,
                 current_user=user_sales,
+                status="pending",
                 total_amount=Decimal("1000.00"),
                 remaining_amount=Decimal("1000.00"),
                 client_id=client_sample.id
@@ -66,6 +69,7 @@ class TestCreateContract:
             create_contract(
                 db=db_session,
                 current_user=user_support,
+                status="pending",
                 total_amount=Decimal("1000.00"),
                 remaining_amount=Decimal("1000.00"),
                 client_id=client_sample.id
@@ -77,6 +81,7 @@ class TestCreateContract:
             create_contract(
                 db=db_session,
                 current_user=user_gestion,
+                status="pending",
                 total_amount=Decimal("1000.00"),
                 remaining_amount=Decimal("1000.00"),
                 client_id=99999
@@ -111,11 +116,11 @@ class TestListContracts:
         user_sales = all_users["sales"]
         user_gestion = all_users["gestion"]
 
-        client1 = create_client(db_session, user_sales, "Client 1", "+111", "Corp 1")
-        client2 = create_client(db_session, user_sales, "Client 2", "+222", "Corp 2")
+        client1 = create_client(db_session, user_sales, "Client 1", "+111", "Corp 1", "client1@sales.com")
+        client2 = create_client(db_session, user_sales, "Client 2", "+222", "Corp 2", "client2@sales.com")
 
-        contract1 = create_contract(db_session, user_gestion, Decimal("1000"), Decimal("500"), client1.id)
-        contract2 = create_contract(db_session, user_gestion, Decimal("2000"), Decimal("1000"), client2.id)
+        contract1 = create_contract(db_session, user_gestion, "signed", Decimal("1000"), Decimal("500"), client1.id)
+        contract2 = create_contract(db_session, user_gestion, "signed", Decimal("2000"), Decimal("1000"), client2.id)
 
         from app.models import User
         user_sales2 = User(
@@ -128,8 +133,8 @@ class TestListContracts:
         db_session.add(user_sales2)
         db_session.commit()
 
-        client3 = create_client(db_session, user_sales2, "Client 3", "+333", "Corp 3")
-        contract3 = create_contract(db_session, user_gestion, Decimal("3000"), Decimal("1500"), client3.id)
+        client3 = create_client(db_session, user_sales2, "Client 3", "+333", "Corp 3", "c3@test.com")
+        contract3 = create_contract(db_session, user_gestion, "signed", Decimal("3000"), Decimal("1500"), client3.id)
 
         contracts = list_contracts(db_session, user_sales)
         assert len(contracts) == 2
@@ -141,11 +146,11 @@ class TestListContracts:
         user_sales = all_users["sales"]
         user_gestion = all_users["gestion"]
 
-        client1 = create_client(db_session, user_sales, "Client 1", "+111", "Corp 1")
-        client2 = create_client(db_session, user_sales, "Client 2", "+222", "Corp 2")
+        client1 = create_client(db_session, user_sales, "Client 1", "+111", "Corp 1", "client1@gestion.com")
+        client2 = create_client(db_session, user_sales, "Client 2", "+222", "Corp 2", "client2@gestion.com")
 
-        contract1 = create_contract(db_session, user_gestion, Decimal("1000"), Decimal("500"), client1.id)
-        contract2 = create_contract(db_session, user_gestion, Decimal("2000"), Decimal("1000"), client2.id)
+        contract1 = create_contract(db_session, user_gestion, "signed", Decimal("1000"), Decimal("500"), client1.id)
+        contract2 = create_contract(db_session, user_gestion, "signed", Decimal("2000"), Decimal("1000"), client2.id)
 
         contracts = list_contracts(db_session, user_gestion)
         assert len(contracts) == 2
@@ -159,8 +164,8 @@ class TestListContracts:
         user_support = all_users["support"]
 
         # Créer un client pour ce test
-        client = create_client(db_session, user_sales, "Test Client", "+111", "Test Corp")
-        contract1 = create_contract(db_session, user_gestion, Decimal("1000"), Decimal("500"), client.id)
+        client = create_client(db_session, user_sales, "Test Client", "+111", "Test Corp", "test@corp.com")
+        contract1 = create_contract(db_session, user_gestion, "signed", Decimal("1000"), Decimal("500"), client.id)
 
         contracts = list_contracts(db_session, user_support)
         assert len(contracts) == 1
@@ -190,10 +195,10 @@ class TestUpdateContract:
         user_gestion = all_users["gestion"]
 
         # Sales crée un client
-        client = create_client(db_session, user_sales, "Client", "+111", "Corp")
+        client = create_client(db_session, user_sales, "Client", "+111", "Corp", "client@update.com")
 
         # Gestion crée un contrat pour ce client
-        contract = create_contract(db_session, user_gestion, Decimal("1000"), Decimal("500"), client.id)
+        contract = create_contract(db_session, user_gestion, "pending", Decimal("1000"), Decimal("500"), client.id)
 
         # Sales peut le modifier
         updated = update_contract(
@@ -225,10 +230,10 @@ class TestUpdateContract:
         db_session.commit()
 
         # Sales1 crée un client
-        client = create_client(db_session, user_sales1, "Client", "+111", "Corp")
+        client = create_client(db_session, user_sales1, "Client", "+111", "Corp", "client@sales1.com")
 
         # Gestion crée un contrat
-        contract = create_contract(db_session, user_gestion, Decimal("1000"), Decimal("500"), client.id)
+        contract = create_contract(db_session, user_gestion, "pending", Decimal("1000"), Decimal("500"), client.id)
 
         # Sales2 tente de le modifier
         with pytest.raises(PermissionError):

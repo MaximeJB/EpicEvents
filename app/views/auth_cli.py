@@ -1,17 +1,22 @@
-import click
+"""Commandes CLI pour l'authentification."""
 import os
 from getpass import getpass
-from app.db import SessionLocal
-from app.auth import login as auth_login, get_current_user
+
+import click
 from rich.console import Console
 from rich.panel import Panel
 
+from app.auth import login as auth_login, get_current_user
+from app.db import SessionLocal
+
 console = Console()
+
 
 @click.group()
 def auth():
-    """Groupe composé de toutes les possibilités de auth"""
+    """Groupe composé de toutes les possibilités de auth."""
     pass
+
 
 @auth.command()
 def login():
@@ -44,9 +49,10 @@ def login():
     finally:
         db.close()
 
+
 @auth.command()
 def logout():
-    """Déconnecte l'utilisateur actuellement connecté"""
+    """Déconnecte l'utilisateur actuellement connecté."""
     db = SessionLocal()
     try:
         user = get_current_user(db)
@@ -68,9 +74,10 @@ def logout():
     finally:
         db.close()
 
+
 @auth.command()
 def whoami():
-    """Affiche l'utilisateur actuellement connecté"""
+    """Affiche l'utilisateur actuellement connecté."""
     db = SessionLocal()
 
     try:

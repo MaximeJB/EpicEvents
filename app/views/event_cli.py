@@ -1,31 +1,41 @@
-import click
+"""Groupe composé de toutes les possibilités des événements."""
 from datetime import datetime
-from app.db import SessionLocal
-from app.auth import get_current_user
-from app.crud.crud_event import create_event, list_events, get_event, update_event, assign_support
-from app.crud.crud_contract import get_contract
+
+import click
 from rich.console import Console
-from rich.table import Table
 from rich.panel import Panel
+from rich.table import Table
+
+from app.auth import get_current_user
+from app.crud.crud_contract import get_contract
+from app.crud.crud_event import (
+    assign_support,
+    create_event,
+    get_event,
+    list_events,
+    update_event,
+)
+from app.db import SessionLocal
 
 console = Console()
 
+
 @click.group()
 def event():
-    """Groupe composé de toutes les possibilités des événements"""
+    """Groupe composé de toutes les possibilités des événements."""
     pass
+
 
 @event.command()
 def create():
-    """
-    Créer un nouvel événement.
+    """Créer un nouvel événement.
 
-    Flow:
-        1. Vérifier que l'utilisateur est connecté
-        2. Demander les infos de l'événement
-        3. Appeler crud.create_event()
-        4. Gérer les erreurs (PermissionError notamment)
-        5. Afficher un message de succès/échec
+    Returns:
+        None: Affiche le résultat de la création dans la console.
+
+    Raises:
+        ValueError: Si le contrat n'existe pas ou n'est pas signé.
+        PermissionError: Si l'utilisateur n'a pas les permissions.
     """
     db = SessionLocal()
     try:
@@ -66,7 +76,6 @@ def create():
         location = click.prompt("Lieu de l'événement")
         attendees = click.prompt("Nombre de participants", type=int)
 
-        # Essayer plusieurs formats de date
         date_formats = ["%d/%m/%Y %H:%M", "%d/%m/%Y"]
         start_date = None
         end_date = None
@@ -134,18 +143,10 @@ def create():
 
 @event.command()
 def list():
-    """
-    Lister les événements.
+    """Lister les événements.
 
-    Flow:
-        1. Vérifier connexion
-        2. Appeler crud.list_events()
-        3. Afficher les résultats de manière formatée
-
-    Bonus UX:
-        - Si aucun événement, afficher "Aucun événement à afficher"
-        - Afficher le nombre total d'événements
-        - Formater joliment (ID, client, dates, lieu, support)
+    Returns:
+        None: Affiche les événements dans un tableau Rich.
     """
     db = SessionLocal()
     try:
@@ -189,17 +190,14 @@ def list():
 
 @event.command()
 def update():
-    """
-    Mettre à jour un événement.
+    """Mettre à jour un événement.
 
-    Flow:
-        1. Vérifier connexion
-        2. Demander l'ID de l'événement
-        3. Vérifier que l'événement existe
-        4. Demander les champs à modifier (optionnels)
-        5. Construire kwargs avec seulement les champs non vides
-        6. Appeler crud.update_event() avec **kwargs
-        7. Gérer PermissionError et ValueError
+    Returns:
+        None: Affiche le résultat de la modification.
+
+    Raises:
+        ValueError: Si l'événement n'existe pas.
+        PermissionError: Si l'utilisateur n'a pas les permissions.
     """
     db = SessionLocal()
     try:
@@ -311,15 +309,14 @@ def update():
 
 @event.command()
 def assign():
-    """
-    Assigner un support à un événement.
+    """Assigner un support à un événement.
 
-    Flow:
-        1. Vérifier connexion (gestion uniquement)
-        2. Demander l'ID de l'événement
-        3. Demander l'ID du support
-        4. Vérifier que le support a le bon rôle
-        5. Assigner et afficher confirmation
+    Returns:
+        None: Affiche le résultat de l'assignation.
+
+    Raises:
+        ValueError: Si l'événement ou le support n'existe pas.
+        PermissionError: Si l'utilisateur n'a pas les permissions (gestion uniquement).
     """
     db = SessionLocal()
     try:

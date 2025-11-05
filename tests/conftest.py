@@ -207,6 +207,7 @@ def client_sample(db_session, user_sales):
     """Crée un client de test associé à un commercial."""
     client = Client(
         name="John Doe",
+        email="john.doe@acme.com",
         phone_number="+1234567890",
         company_name="ACME Corp",
         sales_contact_id=user_sales.id

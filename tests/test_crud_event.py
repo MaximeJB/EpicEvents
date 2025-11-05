@@ -31,10 +31,10 @@ class TestCreateEvent:
         user_gestion = all_users["gestion"]
 
         # Sales crée un client
-        client = create_client(db_session, user_sales, "Client", "+111", "Corp")
+        client = create_client(db_session, user_sales, "Client", "+111", "Corp", "event1@test.com")
 
         # Gestion crée un contrat
-        contract = create_contract(db_session, user_gestion, Decimal("1000"), Decimal("500"), client.id)
+        contract = create_contract(db_session, user_gestion, "pending", Decimal("1000"), Decimal("500"), client.id)
 
         # Gestion signe le contrat
         update_contract(db_session, user_gestion, contract.id, status="signed")
@@ -62,10 +62,10 @@ class TestCreateEvent:
         user_gestion = all_users["gestion"]
 
         # Sales crée un client
-        client = create_client(db_session, user_sales, "Client", "+111", "Corp")
+        client = create_client(db_session, user_sales, "Client", "+111", "Corp", "event2@test.com")
 
         # Gestion crée un contrat (status = pending par défaut)
-        contract = create_contract(db_session, user_gestion, Decimal("1000"), Decimal("500"), client.id)
+        contract = create_contract(db_session, user_gestion, "pending", Decimal("1000"), Decimal("500"), client.id)
 
         # Sales tente de créer un événement
         with pytest.raises(ValueError) as exc_info:
@@ -100,10 +100,10 @@ class TestCreateEvent:
         db_session.commit()
 
         # Sales1 crée un client
-        client = create_client(db_session, user_sales1, "Client", "+111", "Corp")
+        client = create_client(db_session, user_sales1, "Client", "+111", "Corp", "event3@test.com")
 
         # Gestion crée et signe un contrat
-        contract = create_contract(db_session, user_gestion, Decimal("1000"), Decimal("500"), client.id)
+        contract = create_contract(db_session, user_gestion, "pending", Decimal("1000"), Decimal("500"), client.id)
         update_contract(db_session, user_gestion, contract.id, status="signed")
         db_session.refresh(contract)
 
@@ -126,8 +126,8 @@ class TestCreateEvent:
         user_gestion = all_users["gestion"]
 
         # Préparer un contrat signé
-        client = create_client(db_session, user_sales, "Client", "+111", "Corp")
-        contract = create_contract(db_session, user_gestion, Decimal("1000"), Decimal("500"), client.id)
+        client = create_client(db_session, user_sales, "Client", "+111", "Corp", "event4@test.com")
+        contract = create_contract(db_session, user_gestion, "pending", Decimal("1000"), Decimal("500"), client.id)
         update_contract(db_session, user_gestion, contract.id, status="signed")
 
         # Support tente de créer un événement
@@ -167,8 +167,8 @@ class TestGetEvent:
         user_gestion = all_users["gestion"]
 
         # Créer un événement
-        client = create_client(db_session, user_sales, "Client", "+111", "Corp")
-        contract = create_contract(db_session, user_gestion, Decimal("1000"), Decimal("500"), client.id)
+        client = create_client(db_session, user_sales, "Client", "+111", "Corp", "event5@test.com")
+        contract = create_contract(db_session, user_gestion, "pending", Decimal("1000"), Decimal("500"), client.id)
         update_contract(db_session, user_gestion, contract.id, status="signed")
         db_session.refresh(contract)
 
@@ -200,8 +200,8 @@ class TestListEvents:
         user_gestion = all_users["gestion"]
 
         # Créer plusieurs événements
-        client = create_client(db_session, user_sales, "Client", "+111", "Corp")
-        contract = create_contract(db_session, user_gestion, Decimal("1000"), Decimal("500"), client.id)
+        client = create_client(db_session, user_sales, "Client", "+111", "Corp", "event6@test.com")
+        contract = create_contract(db_session, user_gestion, "pending", Decimal("1000"), Decimal("500"), client.id)
         update_contract(db_session, user_gestion, contract.id, status="signed")
         db_session.refresh(contract)
 
@@ -219,8 +219,8 @@ class TestListEvents:
         user_gestion = all_users["gestion"]
 
         # Créer des événements
-        client = create_client(db_session, user_sales, "Client", "+111", "Corp")
-        contract = create_contract(db_session, user_gestion, Decimal("1000"), Decimal("500"), client.id)
+        client = create_client(db_session, user_sales, "Client", "+111", "Corp", "event7@test.com")
+        contract = create_contract(db_session, user_gestion, "pending", Decimal("1000"), Decimal("500"), client.id)
         update_contract(db_session, user_gestion, contract.id, status="signed")
         db_session.refresh(contract)
 
@@ -254,15 +254,15 @@ class TestListEvents:
         db_session.commit()
 
         # Sales1 crée un client et un événement
-        client1 = create_client(db_session, user_sales1, "Client 1", "+111", "Corp 1")
-        contract1 = create_contract(db_session, user_gestion, Decimal("1000"), Decimal("500"), client1.id)
+        client1 = create_client(db_session, user_sales1, "Client 1", "+111", "Corp 1", "event8a@test.com")
+        contract1 = create_contract(db_session, user_gestion, "pending", Decimal("1000"), Decimal("500"), client1.id)
         update_contract(db_session, user_gestion, contract1.id, status="signed")
         db_session.refresh(contract1)
         event1 = create_event(db_session, user_sales1, datetime(2025, 6, 1, 14, 0), datetime(2025, 6, 1, 18, 0), "Paris", 100, contract1.id)
 
         # Sales2 crée un client et un événement
-        client2 = create_client(db_session, user_sales2, "Client 2", "+222", "Corp 2")
-        contract2 = create_contract(db_session, user_gestion, Decimal("2000"), Decimal("1000"), client2.id)
+        client2 = create_client(db_session, user_sales2, "Client 2", "+222", "Corp 2", "event8b@test.com")
+        contract2 = create_contract(db_session, user_gestion, "pending", Decimal("2000"), Decimal("1000"), client2.id)
         update_contract(db_session, user_gestion, contract2.id, status="signed")
         db_session.refresh(contract2)
         event2 = create_event(db_session, user_sales2, datetime(2025, 7, 1, 14, 0), datetime(2025, 7, 1, 18, 0), "Lyon", 50, contract2.id)
@@ -283,8 +283,8 @@ class TestUpdateEvent:
         user_gestion = all_users["gestion"]
 
         # Créer un événement
-        client = create_client(db_session, user_sales, "Client", "+111", "Corp")
-        contract = create_contract(db_session, user_gestion, Decimal("1000"), Decimal("500"), client.id)
+        client = create_client(db_session, user_sales, "Client", "+111", "Corp", "event9@test.com")
+        contract = create_contract(db_session, user_gestion, "pending", Decimal("1000"), Decimal("500"), client.id)
         update_contract(db_session, user_gestion, contract.id, status="signed")
         db_session.refresh(contract)
         event = create_event(db_session, user_sales, datetime(2025, 6, 1, 14, 0), datetime(2025, 6, 1, 18, 0), "Paris", 100, contract.id)
@@ -308,8 +308,8 @@ class TestUpdateEvent:
         user_gestion = all_users["gestion"]
 
         # Créer un événement et l'assigner au support
-        client = create_client(db_session, user_sales, "Client", "+111", "Corp")
-        contract = create_contract(db_session, user_gestion, Decimal("1000"), Decimal("500"), client.id)
+        client = create_client(db_session, user_sales, "Client", "+111", "Corp", "event10@test.com")
+        contract = create_contract(db_session, user_gestion, "pending", Decimal("1000"), Decimal("500"), client.id)
         update_contract(db_session, user_gestion, contract.id, status="signed")
         db_session.refresh(contract)
         event = create_event(db_session, user_sales, datetime(2025, 6, 1, 14, 0), datetime(2025, 6, 1, 18, 0), "Paris", 100, contract.id)
@@ -346,8 +346,8 @@ class TestUpdateEvent:
         db_session.commit()
 
         # Créer un événement assigné au support1
-        client = create_client(db_session, user_sales, "Client", "+111", "Corp")
-        contract = create_contract(db_session, user_gestion, Decimal("1000"), Decimal("500"), client.id)
+        client = create_client(db_session, user_sales, "Client", "+111", "Corp", "event11@test.com")
+        contract = create_contract(db_session, user_gestion, "pending", Decimal("1000"), Decimal("500"), client.id)
         update_contract(db_session, user_gestion, contract.id, status="signed")
         db_session.refresh(contract)
         event = create_event(db_session, user_sales, datetime(2025, 6, 1, 14, 0), datetime(2025, 6, 1, 18, 0), "Paris", 100, contract.id)
@@ -369,8 +369,8 @@ class TestUpdateEvent:
         user_gestion = all_users["gestion"]
 
         # Créer un événement
-        client = create_client(db_session, user_sales, "Client", "+111", "Corp")
-        contract = create_contract(db_session, user_gestion, Decimal("1000"), Decimal("500"), client.id)
+        client = create_client(db_session, user_sales, "Client", "+111", "Corp", "event12@test.com")
+        contract = create_contract(db_session, user_gestion, "pending", Decimal("1000"), Decimal("500"), client.id)
         update_contract(db_session, user_gestion, contract.id, status="signed")
         db_session.refresh(contract)
         event = create_event(db_session, user_sales, datetime(2025, 6, 1, 14, 0), datetime(2025, 6, 1, 18, 0), "Paris", 100, contract.id)

@@ -134,6 +134,7 @@ class TestClientModel:
         """Test : peut créer un client complet."""
         client = Client(
             name="ACME Corp",
+            email="acme@corp.com",
             phone_number="+123456789",
             company_name="ACME Corporation",
             sales_contact_id=user_sales.id
@@ -149,6 +150,7 @@ class TestClientModel:
         """Test : created_at est automatiquement défini."""
         client = Client(
             name="Test Client",
+            email="test@client.com",
             phone_number="+111111111",
             company_name="Test Corp",
             sales_contact_id=user_sales.id
@@ -164,6 +166,7 @@ class TestClientModel:
         """Test : la relation Client -> User (sales_contact) fonctionne."""
         client = Client(
             name="Test Client",
+            email="testclient2@corp.com",
             phone_number="+222222222",
             company_name="Test Corp",
             sales_contact_id=user_sales.id
@@ -179,12 +182,14 @@ class TestClientModel:
         """Test : la relation User -> Clients fonctionne."""
         client1 = Client(
             name="Client 1",
+            email="client1@corp.com",
             phone_number="+111111111",
             company_name="Corp 1",
             sales_contact_id=user_sales.id
         )
         client2 = Client(
             name="Client 2",
+            email="client2@corp.com",
             phone_number="+222222222",
             company_name="Corp 2",
             sales_contact_id=user_sales.id

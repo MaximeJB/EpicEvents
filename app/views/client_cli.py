@@ -1,30 +1,30 @@
-import click
-from app.db import SessionLocal
-from app.auth import get_current_user
-from app.crud.crud_client import get_client
-from app.crud.crud_contract import create_contract, list_contracts, get_contract, update_contract
-from rich.console import Console
-from rich.table import Table
-from rich.panel import Panel
+"""Commandes CLI pour la gestion des clients."""
+import logging
 
+import click
+from rich.console import Console
+from rich.panel import Panel
+from rich.table import Table
+
+from app.auth import get_current_user
+from app.crud.crud_client import create_client, get_client, list_clients, update_client
+from app.db import SessionLocal
+
+logger = logging.getLogger(__name__)
 console = Console()
 
+
 @click.group()
-def contract():
-    """Groupe composé de toutes les possibilités de contrat"""
+def client():
+    """Groupe composé de toutes les possibilités de client."""
     pass
 
-@contract.command()
-def create():
-    """
-    Créer un nouveau contrat.
 
-    Flow:
-        1. Vérifier que l'utilisateur est connecté
-        2. Demander les infos du contrat
-        3. Appeler crud.create_contrat()
-        4. Gérer les erreurs (PermissionError notamment)
-        5. Afficher un message de succès/échec
+@client.command()
+def create():
+    """Créer un nouveau client.
+
+    Demande les informations du client et crée l'entrée dans la base de données.
     """
     db = SessionLocal()
     try:
@@ -35,29 +35,14 @@ def create():
             console.print("[red]╰───────────────────────────────────────╯[/red]\n")
             return
         else:
-            client_id = click.prompt("Entrez l'ID du client", type=int)
-            client = get_client(db, client_id)
-            if not client:
-                console.print("\n[red]╭───────────────────────────────────────╮[/red]")
-                console.print("[red]│ ✗ Client non trouvé avec cet ID       │[/red]")
-                console.print("[red]╰───────────────────────────────────────╯[/red]\n")
-                return
-            total_amount = click.prompt("Entrez le montant total du contrat", type=int)
-            remaining_amount = click.prompt("Entrez le montant restant à honorer sur ce contrat", type=int)
-            status_choice = click.prompt("Entrez le status du contrat : 's' pour signé, 'a' pour en attente")
-            if status_choice == "s":
-                status = "signed"
-            elif status_choice == "a":
-                status = "pending"
-            else:
-                console.print("\n[yellow]╭───────────────────────────────────────╮[/yellow]")
-                console.print("[yellow]│ ⚠ Répondez soit 's' soit 'a'          │[/yellow]")
-                console.print("[yellow]╰───────────────────────────────────────╯[/yellow]\n")
-                return
+            name = click.prompt("Entrez le nom du client")
+            phone = click.prompt("Entrez le téléphone du client")
+            company = click.prompt("Entrez le nom de l'entreprise du client")
+            email = click.prompt("Entre l'email du client : ")
             try:
-                new_contract = create_contract(db=db, current_user=user, client_id=client.id, total_amount=total_amount, remaining_amount=remaining_amount, status=status)
+                new_client = create_client(db, current_user=user, name=name, phone=phone, company=company, email=email)
                 console.print("\n[green]╭───────────────────────────────────────╮[/green]")
-                console.print(f"[green]│ ✓ Contrat créé : {new_contract.client.name} (ID: {new_contract.id}){' ' * (38 - len(f'✓ Contrat créé : {new_contract.client.name} (ID: {new_contract.id})'))}│[/green]")
+                console.print(f"[green]│ ✓ Client créé : {new_client.name} (ID: {new_client.id}){' ' * (38 - len(f'✓ Client créé : {new_client.name} (ID: {new_client.id})'))}│[/green]")
                 console.print("[green]╰───────────────────────────────────────╯[/green]\n")
             except ValueError as e:
                 console.print("\n[red]╭───────────────────────────────────────╮[/red]")
@@ -71,23 +56,11 @@ def create():
         db.close()
 
 
-   
-
-
-@contract.command()
+@client.command()
 def list():
-    """
-    Lister les contrats.
+    """Lister les clients.
 
-    Flow:
-        1. Vérifier connexion
-        2. Appeler crud.list_contracts()
-        3. Afficher les résultats de manière formatée
-
-    Bonus UX:
-        - Si aucun contrat, afficher "Aucun contrat à afficher"
-        - Afficher le nombre total de contrats
-        - Formater joliment (ID, client, montants, status)
+    Affiche tous les clients accessibles selon le rôle de l'utilisateur.
     """
     db = SessionLocal()
     try:
@@ -98,51 +71,39 @@ def list():
             console.print("[red]╰───────────────────────────────────────╯[/red]\n")
             return
         else:
-            contracts = list_contracts(db, user)
-            if not contracts:
+            clients = list_clients(db, user)
+            if not clients:
                 console.print("\n[yellow]╭───────────────────────────────────────╮[/yellow]")
-                console.print("[yellow]│ Aucun contrat à afficher               │[/yellow]")
+                console.print("[yellow]│ Aucun client à afficher                │[/yellow]")
                 console.print("[yellow]╰───────────────────────────────────────╯[/yellow]\n")
                 return
             else:
-                table = Table(title="Liste des Contrats")
+                table = Table(title="Liste des Clients")
                 table.add_column("ID", style="cyan", justify="center")
-                table.add_column("Client", style="green")
-                table.add_column("Date création", style="blue")
-                table.add_column("Status", justify="center")
-                table.add_column("Montant total", justify="right", style="yellow")
-                table.add_column("Restant", justify="right", style="red")
+                table.add_column("Nom", style="green")
+                table.add_column("Entreprise", style="yellow")
+                table.add_column("Téléphone")
+                table.add_column("Email", style="blue")
 
-                for contract in contracts:
-                    status_display = "[green]✓ Signé[/green]" if contract.status == "signed" else "[red]✗ En attente[/red]"
+                for client in clients:
                     table.add_row(
-                        str(contract.id),
-                        contract.client.name,
-                        str(contract.created_at.strftime("%d/%m/%Y")),
-                        status_display,
-                        f"{contract.total_amount} €",
-                        f"{contract.remaining_amount} €"
+                        str(client.id),
+                        client.name,
+                        client.company_name,
+                        client.phone_number,
+                        client.email
                     )
 
                 console.print(table)
     finally:
         db.close()
-    
 
 
-@contract.command()
+@client.command()
 def update():
-    """
-    Mettre à jour un contrat.
+    """Mettre à jour un client.
 
-    Flow:
-        1. Vérifier connexion
-        2. Demander l'ID du contrat
-        3. Vérifier que le contrat existe
-        4. Demander les champs à modifier (optionnels)
-        5. Construire kwargs avec seulement les champs non vides
-        6. Appeler crud.update_contract() avec **kwargs
-        7. Gérer PermissionError et ValueError
+    Permet de modifier les informations d'un client existant.
     """
     db = SessionLocal()
     try:
@@ -153,38 +114,40 @@ def update():
             console.print("[red]╰───────────────────────────────────────╯[/red]\n")
             return
 
-        contract_id = click.prompt("Quel est l'ID du contrat à mettre à jour ?", type=int)
+        client_id = click.prompt("Quel est l'ID du client à mettre à jour ?", type=int)
 
-        target_contract = get_contract(db, contract_id)
-        if not target_contract:
+        target_client = get_client(db, client_id)
+        if not target_client:
             console.print("\n[red]╭───────────────────────────────────────╮[/red]")
-            console.print("[red]│ ✗ Aucun contrat trouvé avec cet ID    │[/red]")
+            console.print("[red]│ ✗ Aucun client trouvé avec cet ID     │[/red]")
             console.print("[red]╰───────────────────────────────────────╯[/red]\n")
             return
 
         panel = Panel(
-            f"[bold]Client:[/bold] {target_contract.client.name}\n"
-            f"[bold]Status:[/bold] {target_contract.status}\n"
-            f"[bold]Montant total:[/bold] {target_contract.total_amount} €\n"
-            f"[bold]Montant restant:[/bold] {target_contract.remaining_amount} €\n"
-            f"[bold]Date création:[/bold] {target_contract.created_at.strftime('%d/%m/%Y')}",
-            title="Contrat actuel",
+            f"[bold]Nom:[/bold] {target_client.name}\n"
+            f"[bold]Entreprise:[/bold] {target_client.company_name}\n"
+            f"[bold]Email:[/bold] {target_client.email}\n"
+            f"[bold]Téléphone:[/bold] {target_client.phone_number}",
+            title="Client actuel",
             border_style="blue"
         )
         console.print(panel)
         console.print("[yellow]Laissez vide pour ne pas modifier un champ[/yellow]\n")
 
-        total_amount = click.prompt("Nouveau montant total", default="", show_default=False)
-        remaining_amount = click.prompt("Nouveau montant restant", default="", show_default=False)
-        status = click.prompt("Nouveau status", default="", show_default=False)
+        name = click.prompt("Nouveau nom", default="", show_default=False)
+        email = click.prompt("Nouvel email", default="", show_default=False)
+        phone = click.prompt("Nouveau téléphone", default="", show_default=False)
+        company = click.prompt("Nouvelle entreprise", default="", show_default=False)
 
         kwargs = {}
-        if total_amount:
-            kwargs['total_amount'] = int(total_amount)
-        if remaining_amount:
-            kwargs['remaining_amount'] = int(remaining_amount)
-        if status:
-            kwargs['status'] = status
+        if name:
+            kwargs['name'] = name
+        if email:
+            kwargs['email'] = email
+        if phone:
+            kwargs['phone'] = phone
+        if company:
+            kwargs['company'] = company
 
         if not kwargs:
             console.print("\n[yellow]╭───────────────────────────────────────╮[/yellow]")
@@ -193,11 +156,12 @@ def update():
             return
 
         try:
-            updated = update_contract(db, current_user=user, contract_id=contract_id, **kwargs)
+            updated = update_client(db, current_user=user, client_id=client_id, **kwargs)
             console.print("\n[green]╭───────────────────────────────────────╮[/green]")
-            console.print(f"[green]│ ✓ Contrat mis à jour : {updated.client.name} - {updated.status} (ID: {updated.id}){' ' * (38 - len(f'✓ Contrat mis à jour : {updated.client.name} - {updated.status} (ID: {updated.id})'))}│[/green]")
+            console.print(f"[green]│ ✓ Client mis à jour : {updated.name} (ID: {updated.id}){' ' * (38 - len(f'✓ Client mis à jour : {updated.name} (ID: {updated.id})'))}│[/green]")
             console.print("[green]╰───────────────────────────────────────╯[/green]\n")
         except ValueError as e:
+            logger.error("Exception levé lors de la mise à jour d'un client")
             console.print("\n[red]╭───────────────────────────────────────╮[/red]")
             console.print(f"[red]│ ✗ Erreur : {e}{' ' * (38 - len(f'✗ Erreur : {e}'))}│[/red]")
             console.print("[red]╰───────────────────────────────────────╯[/red]\n")
@@ -208,4 +172,3 @@ def update():
 
     finally:
         db.close()
-    

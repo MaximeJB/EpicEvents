@@ -1,31 +1,41 @@
-import click
+"""Groupe composé de toutes les possibilités des collaborateurs."""
 from getpass import getpass
-from app.crud.crud_user import create_user, get_user_by_id, list_users, update_user, delete_user
-from app.models import Role
-from app.db import SessionLocal
-from app.auth import get_current_user
+
+import click
 from rich.console import Console
-from rich.table import Table
 from rich.panel import Panel
+from rich.table import Table
+
+from app.auth import get_current_user
+from app.crud.crud_user import (
+    create_user,
+    delete_user,
+    get_user_by_id,
+    list_users,
+    update_user,
+)
+from app.db import SessionLocal
+from app.models import Role
 
 console = Console()
 
+
 @click.group()
 def collab():
-    """Groupe composé de toutes les possibilités des collaborateurs"""
+    """Groupe composé de toutes les possibilités des collaborateurs."""
     pass
+
 
 @collab.command()
 def create():
-    """
-    Créer un nouveau collaborateur.
+    """Créer un nouveau collaborateur.
 
-    Flow:
-        1. Vérifier que l'utilisateur est connecté
-        2. Demander les infos du collaborateur
-        3. Appeler crud.create_user()
-        4. Gérer les erreurs (PermissionError notamment)
-        5. Afficher un message de succès/échec
+    Returns:
+        None: Affiche le résultat de la création dans la console.
+
+    Raises:
+        ValueError: Si le rôle est invalide ou données incorrectes.
+        PermissionError: Si l'utilisateur n'a pas les permissions (gestion uniquement).
     """
     db = SessionLocal()
     try:
@@ -83,23 +93,12 @@ def create():
         db.close()
 
 
-   
-
-
 @collab.command()
 def list():
-    """
-    Lister les collaborateurs.
+    """Lister les collaborateurs.
 
-    Flow:
-        1. Vérifier connexion
-        2. Appeler crud.list_users()
-        3. Afficher les résultats de manière formatée
-
-    Bonus UX:
-        - Si aucun collaborateur, afficher "Aucun collaborateur à afficher"
-        - Afficher le nombre total de collaborateurs
-        - Formater joliment (ID, email, nom, département, rôle)
+    Returns:
+        None: Affiche les collaborateurs dans un tableau Rich.
     """
     db = SessionLocal()
     try:
@@ -136,22 +135,18 @@ def list():
         console.print(table)
     finally:
         db.close()
-    
 
 
 @collab.command()
 def update():
-    """
-    Mettre à jour un collaborateur.
+    """Mettre à jour un collaborateur.
 
-    Flow:
-        1. Vérifier connexion
-        2. Demander l'ID du collaborateur
-        3. Vérifier que le collaborateur existe
-        4. Demander les champs à modifier (optionnels)
-        5. Construire kwargs avec seulement les champs non vides
-        6. Appeler crud.update_user() avec **kwargs
-        7. Gérer PermissionError et ValueError
+    Returns:
+        None: Affiche le résultat de la modification.
+
+    Raises:
+        ValueError: Si le collaborateur ou le rôle n'existe pas.
+        PermissionError: Si l'utilisateur n'a pas les permissions (gestion uniquement).
     """
     db = SessionLocal()
     try:
@@ -230,16 +225,14 @@ def update():
 
 @collab.command()
 def delete():
-    """
-    Supprimer un collaborateur.
+    """Supprimer un collaborateur.
 
-    Flow:
-        1. Vérifier connexion
-        2. Demander l'ID du collaborateur
-        3. Vérifier que le collaborateur existe
-        4. Demander confirmation
-        5. Appeler crud.delete_user()
-        6. Gérer PermissionError et ValueError
+    Returns:
+        None: Affiche le résultat de la suppression.
+
+    Raises:
+        ValueError: Si le collaborateur n'existe pas.
+        PermissionError: Si l'utilisateur n'a pas les permissions (gestion uniquement).
     """
     db = SessionLocal()
     try:
