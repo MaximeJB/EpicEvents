@@ -57,14 +57,14 @@ L'application implémente un système de permissions basé sur les rôles (RBAC)
 
 - **Python** 3.9 ou supérieur
 - **PostgreSQL** (ou autre base de données compatible SQLAlchemy)
-- **Compte Sentry** (optionnel pour la journalisation)
+- **Compte Sentry**
 
 ## 📦 Installation
 
 ### 1. Cloner le repository
 
 ```bash
-git clone https://github.com/votre-username/EpicEvents.git
+git clone https://github.com/MaximeJB/EpicEvents.git
 cd EpicEvents
 ```
 
@@ -131,23 +131,7 @@ Cette commande :
 
 Vous devrez créer manuellement le premier utilisateur gestion directement dans la base de données ou via un script Python.
 
-**Option 1 : Via SQL**
-```sql
-INSERT INTO roles (name) VALUES ('gestion') RETURNING id;
--- Notez l'ID retourné (ex: 1)
-
-INSERT INTO users (email, password_hash, name, department, role_id, is_superuser)
-VALUES (
-    'admin@epicevents.com',
-    '$argon2id$v=19$m=65536,t=3,p=4$...',  -- Générer avec argon2
-    'Administrateur',
-    'gestion',
-    1,  -- ID du rôle gestion
-    true
-);
-```
-
-**Option 2 : Via script Python** (recommandé)
+**Option : Via script Python** 
 
 Créez un fichier `create_admin.py` :
 
@@ -331,20 +315,6 @@ pytest -v
 pytest --cov=app tests/
 ```
 
-### Tests par module
-
-```bash
-# Tester l'authentification
-pytest tests/test_auth.py -v
-
-# Tester les modèles
-pytest tests/test_models.py -v
-
-# Tester les CRUD
-pytest tests/test_crud_user.py -v
-pytest tests/test_crud_contract.py -v
-```
-
 ## 🔐 Permissions par Rôle
 
 | Fonctionnalité | Sales (Commercial) | Support | Gestion |
@@ -387,107 +357,6 @@ pytest tests/test_crud_contract.py -v
 - ✅ Modification d'un collaborateur
 - ✅ Signature d'un contrat
 
-### Bonnes pratiques
-
-- Ne **JAMAIS** committer le fichier `.env`
-- Changer le `SECRET_KEY` en production
-- Utiliser un mot de passe fort pour l'administrateur
-- Limiter les accès à la base de données
-- Vérifier régulièrement les logs Sentry
-
-## 📊 Modèles de Données
-
-### User (Utilisateur)
-- `id` : Identifiant unique
-- `email` : Email unique
-- `password_hash` : Hash Argon2
-- `name` : Nom complet
-- `department` : Département
-- `role_id` : Clé étrangère vers Role
-- `is_superuser` : Booléen (droits étendus)
-
-### Client
-- `id` : Identifiant unique
-- `name` : Nom complet
-- `email` : Email unique
-- `phone_number` : Téléphone unique
-- `company_name` : Nom de l'entreprise
-- `created_at` : Date de création
-- `last_update` : Dernière mise à jour
-- `sales_contact_id` : Commercial assigné
-
-### Contract (Contrat)
-- `id` : Identifiant unique
-- `total_amount` : Montant total (Decimal)
-- `remaining_amount` : Montant restant (Decimal)
-- `created_at` : Date de création
-- `status` : Statut (pending/signed)
-- `client_id` : Clé étrangère vers Client
-
-### Event (Événement)
-- `id` : Identifiant unique
-- `start_date` : Date de début
-- `end_date` : Date de fin
-- `location` : Lieu
-- `attendees` : Nombre de participants
-- `notes` : Notes additionnelles
-- `contract_id` : Clé étrangère vers Contract
-- `support_contact_id` : Support assigné (nullable)
-
-## 🐛 Dépannage
-
-### Erreur : "No such command 'menu_principal'"
-
-Vérifiez que vous utilisez bien :
-```bash
-python main.py menu_principal
-```
-(avec underscore, pas de tiret)
-
-### Erreur : "Pas d'utilisateur connecté"
-
-Connectez-vous d'abord :
-```bash
-python main.py auth login
-```
-
-### Erreur de connexion à la base de données
-
-Vérifiez :
-1. PostgreSQL est bien démarré
-2. Le `DATABASE_URL` dans `.env` est correct
-3. La base de données existe (`CREATE DATABASE epicevents;`)
-4. L'utilisateur a les permissions nécessaires
-
-### Token JWT expiré
-
-Le token expire après 24h. Reconnectez-vous :
-```bash
-python main.py auth logout
-python main.py auth login
-```
-
-## 📝 Développement
-
-### Ajouter une nouvelle fonctionnalité
-
-1. **Modèle** : Modifier `app/models.py` si nécessaire
-2. **CRUD** : Ajouter les fonctions dans `app/crud/`
-3. **CLI** : Ajouter les commandes dans `app/views/`
-4. **Tests** : Ajouter les tests dans `tests/`
-
-### Formater le code
-
-```bash
-# Installer black et flake8
-pip install black flake8
-
-# Formater
-black app/ tests/ main.py
-
-# Vérifier PEP8
-flake8 app/ tests/ main.py --max-line-length=120
-```
 
 ## 📜 Licence
 
@@ -496,12 +365,3 @@ Ce projet est développé dans le cadre d'un exercice de formation OpenClassroom
 ## 👤 Auteur
 
 Maxime - Développeur Python en formation
-
-## 🙏 Remerciements
-
-- **SQLAlchemy** : ORM puissant pour Python
-- **Click** : Framework CLI intuitif
-- **Rich** : Interface CLI magnifique
-- **Argon2** : Hachage sécurisé
-- **Sentry** : Journalisation et monitoring
-- **OpenClassrooms** : Formation et cahier des charges
