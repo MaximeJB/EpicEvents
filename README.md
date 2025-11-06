@@ -194,66 +194,6 @@ python main.py auth whoami
 python main.py auth logout
 ```
 
-### Exemples de commandes
-
-#### Gestion des Clients
-
-```bash
-# Créer un client (Sales/Gestion)
-python main.py client create
-
-# Lister les clients
-python main.py client list
-
-# Modifier un client
-python main.py client update
-```
-
-#### Gestion des Contrats
-
-```bash
-# Créer un contrat (Gestion uniquement)
-python main.py contract create
-
-# Lister tous les contrats
-python main.py contract list
-
-# Modifier un contrat
-python main.py contract update
-```
-
-#### Gestion des Événements
-
-```bash
-# Créer un événement (Sales)
-python main.py event create
-
-# Lister les événements
-python main.py event list
-
-# Modifier un événement (Support/Gestion)
-python main.py event update
-
-# Assigner un support (Gestion)
-python main.py event assign-support
-```
-
-#### Gestion des Collaborateurs
-
-```bash
-# Créer un collaborateur (Gestion uniquement)
-python main.py collab create
-
-# Lister tous les collaborateurs
-python main.py collab list
-
-# Modifier un collaborateur
-python main.py collab update
-
-# Supprimer un collaborateur
-python main.py collab delete
-```
-
 ## 📁 Architecture du Projet
 
 ```
