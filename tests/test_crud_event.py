@@ -12,10 +12,11 @@ import pytest
 from datetime import datetime
 from decimal import Decimal
 from app.crud.crud_event import (
+    assign_support,
     create_event,
     get_event,
     list_events,
-    update_event
+    update_event,
 )
 from app.crud.crud_contract import create_contract, update_contract
 from app.crud.crud_client import create_client
@@ -395,3 +396,102 @@ class TestUpdateEvent:
             )
 
         assert "n'existe pas" in str(exc_info.value)
+
+
+class TestAssignSupport:
+    """Tests pour l'assignation d'un support à un événement."""
+
+    def test_gestion_can_assign_support_to_event(self, db_session, all_users):
+        """Test : la gestion peut assigner un support à un événement."""
+        user_sales = all_users["sales"]
+        user_support = all_users["support"]
+        user_gestion = all_users["gestion"]
+
+        # Créer un événement sans support
+        client = create_client(db_session, user_sales, "Client", "+111", "Corp", "event13@test.com")
+        contract = create_contract(db_session, user_gestion, "pending", Decimal("1000"), Decimal("500"), client.id)
+        update_contract(db_session, user_gestion, contract.id, status="signed")
+        db_session.refresh(contract)
+        event = create_event(db_session, user_sales, datetime(2025, 6, 1, 14, 0), datetime(2025, 6, 1, 18, 0), "Paris", 100, contract.id)
+
+        # Gestion assigne le support
+        updated = assign_support(db_session, user_gestion, event.id, user_support.id)
+
+        assert updated.support_contact_id == user_support.id
+
+    def test_assign_support_raises_error_if_event_not_found(self, db_session, user_gestion, user_support):
+        """Test : erreur si l'événement n'existe pas."""
+        with pytest.raises(ValueError) as exc_info:
+            assign_support(db_session, user_gestion, 99999, user_support.id)
+
+        assert "événement n'existe pas" in str(exc_info.value)
+
+    def test_assign_support_raises_error_if_user_not_found(self, db_session, all_users):
+        """Test : erreur si l'utilisateur support n'existe pas."""
+        user_sales = all_users["sales"]
+        user_gestion = all_users["gestion"]
+
+        # Créer un événement
+        client = create_client(db_session, user_sales, "Client", "+111", "Corp", "event14@test.com")
+        contract = create_contract(db_session, user_gestion, "pending", Decimal("1000"), Decimal("500"), client.id)
+        update_contract(db_session, user_gestion, contract.id, status="signed")
+        db_session.refresh(contract)
+        event = create_event(db_session, user_sales, datetime(2025, 6, 1, 14, 0), datetime(2025, 6, 1, 18, 0), "Paris", 100, contract.id)
+
+        # Tenter d'assigner un support inexistant
+        with pytest.raises(ValueError) as exc_info:
+            assign_support(db_session, user_gestion, event.id, 99999)
+
+        assert "utilisateur support n'existe pas" in str(exc_info.value)
+
+    def test_assign_support_raises_error_if_user_not_support_role(self, db_session, all_users):
+        """Test : erreur si l'utilisateur n'a pas le rôle support."""
+        user_sales = all_users["sales"]
+        user_gestion = all_users["gestion"]
+
+        # Créer un événement
+        client = create_client(db_session, user_sales, "Client", "+111", "Corp", "event15@test.com")
+        contract = create_contract(db_session, user_gestion, "pending", Decimal("1000"), Decimal("500"), client.id)
+        update_contract(db_session, user_gestion, contract.id, status="signed")
+        db_session.refresh(contract)
+        event = create_event(db_session, user_sales, datetime(2025, 6, 1, 14, 0), datetime(2025, 6, 1, 18, 0), "Paris", 100, contract.id)
+
+        # Tenter d'assigner un commercial (pas support)
+        with pytest.raises(ValueError) as exc_info:
+            assign_support(db_session, user_gestion, event.id, user_sales.id)
+
+        assert "doit avoir le rôle 'support'" in str(exc_info.value)
+
+    def test_sales_cannot_assign_support(self, db_session, all_users):
+        """Test : les commerciaux ne peuvent pas assigner de support."""
+        user_sales = all_users["sales"]
+        user_support = all_users["support"]
+        user_gestion = all_users["gestion"]
+
+        # Créer un événement
+        client = create_client(db_session, user_sales, "Client", "+111", "Corp", "event16@test.com")
+        contract = create_contract(db_session, user_gestion, "pending", Decimal("1000"), Decimal("500"), client.id)
+        update_contract(db_session, user_gestion, contract.id, status="signed")
+        db_session.refresh(contract)
+        event = create_event(db_session, user_sales, datetime(2025, 6, 1, 14, 0), datetime(2025, 6, 1, 18, 0), "Paris", 100, contract.id)
+
+        # Sales tente d'assigner un support
+        with pytest.raises(PermissionError):
+            assign_support(db_session, user_sales, event.id, user_support.id)
+
+    def test_support_cannot_assign_support(self, db_session, all_users):
+        """Test : le support ne peut pas assigner de support (seule la gestion peut)."""
+        user_sales = all_users["sales"]
+        user_support = all_users["support"]
+        user_gestion = all_users["gestion"]
+
+        # Créer un événement
+        client = create_client(db_session, user_sales, "Client", "+111", "Corp", "event17@test.com")
+        contract = create_contract(db_session, user_gestion, "pending", Decimal("1000"), Decimal("500"), client.id)
+        update_contract(db_session, user_gestion, contract.id, status="signed")
+        db_session.refresh(contract)
+        event = create_event(db_session, user_sales, datetime(2025, 6, 1, 14, 0), datetime(2025, 6, 1, 18, 0), "Paris", 100, contract.id)
+
+        # Support tente d'assigner un support
+        with pytest.raises(PermissionError):
+            assign_support(db_session, user_support, event.id, user_support.id)
