@@ -1,8 +1,9 @@
 """Opérations CRUD pour les contrats."""
+
 import sentry_sdk
 
 from app.auth import require_role
-from app.crud.crud_client import get_client
+from app.managers.client import get_client
 from app.models import Client, Contract
 
 
@@ -28,7 +29,9 @@ def create_contract(db, current_user, status, total_amount, remaining_amount, cl
     client = get_client(db, client_id)
     if not client:
         raise ValueError("Client not found")
-    contract = Contract(status = status, total_amount=total_amount, remaining_amount=remaining_amount, client_id=client_id)
+    contract = Contract(
+        status=status, total_amount=total_amount, remaining_amount=remaining_amount, client_id=client_id
+    )
     db.add(contract)
     db.commit()
     db.refresh(contract)
@@ -74,7 +77,10 @@ def update_contract(db, current_user, contract_id, **kwargs):
 
     old_status = contract.status
 
-    for key,value, in kwargs.items():
+    for (
+        key,
+        value,
+    ) in kwargs.items():
         if hasattr(contract, key):
             setattr(contract, key, value)
 
@@ -84,7 +90,7 @@ def update_contract(db, current_user, contract_id, **kwargs):
     if contract.status == "signed" and old_status != "signed":
         sentry_sdk.capture_message(
             f"Contrat signé : ID {contract.id} pour client {contract.client.name} par {current_user.email}",
-            level="info"
+            level="info",
         )
 
     return contract

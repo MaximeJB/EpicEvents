@@ -1,5 +1,4 @@
 """Groupe composé de toutes les possibilités de contrat."""
-from decimal import Decimal
 
 import click
 from rich.console import Console
@@ -7,8 +6,8 @@ from rich.panel import Panel
 from rich.table import Table
 
 from app.auth import get_current_user
-from app.crud.crud_client import get_client
-from app.crud.crud_contract import (
+from app.managers.client import get_client
+from app.managers.contract import (
     create_contract,
     get_contract,
     list_contracts,
@@ -65,9 +64,18 @@ def create():
                 console.print("[yellow]╰───────────────────────────────────────╯[/yellow]\n")
                 return
             try:
-                new_contract = create_contract(db=db, current_user=user, client_id=client.id, total_amount=total_amount, remaining_amount=remaining_amount, status=status)
+                new_contract = create_contract(
+                    db=db,
+                    current_user=user,
+                    client_id=client.id,
+                    total_amount=total_amount,
+                    remaining_amount=remaining_amount,
+                    status=status,
+                )
                 console.print("\n[green]╭───────────────────────────────────────╮[/green]")
-                console.print(f"[green]│ ✓ Contrat créé : {new_contract.client.name} (ID: {new_contract.id}){' ' * (38 - len(f'✓ Contrat créé : {new_contract.client.name} (ID: {new_contract.id})'))}│[/green]")
+                console.print(
+                    f"[green]│ ✓ Contrat créé : {new_contract.client.name} (ID: {new_contract.id}){' ' * (38 - len(f'✓ Contrat créé : {new_contract.client.name} (ID: {new_contract.id})'))}│[/green]"
+                )
                 console.print("[green]╰───────────────────────────────────────╯[/green]\n")
             except ValueError as e:
                 console.print("\n[red]╭───────────────────────────────────────╮[/red]")
@@ -75,7 +83,9 @@ def create():
                 console.print("[red]╰───────────────────────────────────────╯[/red]\n")
             except PermissionError as e:
                 console.print("\n[red]╭───────────────────────────────────────╮[/red]")
-                console.print(f"[red]│ ✗ Permission refusée : {e}{' ' * (38 - len(f'✗ Permission refusée : {e}'))}│[/red]")
+                console.print(
+                    f"[red]│ ✗ Permission refusée : {e}{' ' * (38 - len(f'✗ Permission refusée : {e}'))}│[/red]"
+                )
                 console.print("[red]╰───────────────────────────────────────╯[/red]\n")
     finally:
         db.close()
@@ -113,14 +123,16 @@ def list():
                 table.add_column("Restant", justify="right", style="red")
 
                 for contract in contracts:
-                    status_display = "[green]✓ Signé[/green]" if contract.status == "signed" else "[red]✗ En attente[/red]"
+                    status_display = (
+                        "[green]✓ Signé[/green]" if contract.status == "signed" else "[red]✗ En attente[/red]"
+                    )
                     table.add_row(
                         str(contract.id),
                         contract.client.name,
                         str(contract.created_at.strftime("%d/%m/%Y")),
                         status_display,
                         f"{contract.total_amount} €",
-                        f"{contract.remaining_amount} €"
+                        f"{contract.remaining_amount} €",
                     )
 
                 console.print(table)
@@ -164,7 +176,7 @@ def update():
             f"[bold]Montant restant:[/bold] {target_contract.remaining_amount} €\n"
             f"[bold]Date création:[/bold] {target_contract.created_at.strftime('%d/%m/%Y')}",
             title="Contrat actuel",
-            border_style="blue"
+            border_style="blue",
         )
         console.print(panel)
         console.print("[yellow]Laissez vide pour ne pas modifier un champ[/yellow]\n")
@@ -190,7 +202,9 @@ def update():
         try:
             updated = update_contract(db, current_user=user, contract_id=contract_id, **kwargs)
             console.print("\n[green]╭───────────────────────────────────────╮[/green]")
-            console.print(f"[green]│ ✓ Contrat mis à jour : {updated.client.name} - {updated.status} (ID: {updated.id}){' ' * (38 - len(f'✓ Contrat mis à jour : {updated.client.name} - {updated.status} (ID: {updated.id})'))}│[/green]")
+            console.print(
+                f"[green]│ ✓ Contrat mis à jour : {updated.client.name} - {updated.status} (ID: {updated.id}){' ' * (38 - len(f'✓ Contrat mis à jour : {updated.client.name} - {updated.status} (ID: {updated.id})'))}│[/green]"
+            )
             console.print("[green]╰───────────────────────────────────────╯[/green]\n")
         except ValueError as e:
             console.print("\n[red]╭───────────────────────────────────────╮[/red]")

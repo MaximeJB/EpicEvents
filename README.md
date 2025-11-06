@@ -297,6 +297,60 @@ pytest --cov=app tests/
 - ✅ Modification d'un collaborateur
 - ✅ Signature d'un contrat
 
+## 📊 Qualité du Code
+
+### Rapport de Tests (Pytest Coverage)
+
+**Couverture de tests : 99%** ✅
+
+```
+Name                       Stmts   Miss  Cover   Missing
+--------------------------------------------------------
+app\auth.py                   62      1    98%   176
+app\db.py                      9      0   100%
+app\managers\__init__.py       0      0   100%
+app\managers\client.py        29      0   100%
+app\managers\contract.py      39      0   100%
+app\managers\event.py         55      0   100%
+app\managers\user.py          40      0   100%
+app\models.py                 56      0   100%
+--------------------------------------------------------
+TOTAL                        290      1    99%
+
+125 tests passed, 3 warnings in 13.91s
+```
+
+**Détails** :
+- ✅ 125 tests unitaires et d'intégration
+- ✅ 99% de couverture sur la logique métier (models, auth, managers)
+- ✅ 100% de couverture sur tous les managers (user, client, contract, event)
+- ✅ 100% de couverture sur les modèles de données
+
+La seule ligne non couverte (ligne 176 de auth.py) concerne le cas du superuser, qui est une feature edge non utilisée actuellement.
+
+### Rapport Flake8 (Qualité du Code)
+
+**33 erreurs mineures détectées** (principalement des problèmes de style)
+
+**Configuration** : Configuration souple avec règles PEP8 adaptées au projet
+
+**Répartition des erreurs** :
+- E111/E117 : Indentation (7 erreurs) - dans managers
+- E251 : Espaces autour du `=` (9 erreurs) - dans models.py
+- E231/E221/E222 : Espaces manquants (8 erreurs) - formatage mineur
+- F401 : Imports inutilisés (5 erreurs) - imports de type hints
+- E123/E126 : Indentation brackets (2 erreurs) - style
+- E722 : Bare except (1 erreur) - dans auth.py
+- E225 : Espace manquant autour opérateur (1 erreur)
+
+**Note** : Ces erreurs sont mineures et n'impactent pas le fonctionnement de l'application. Elles concernent principalement le formatage du code et des imports de documentation.
+
+**Commande pour reproduire** :
+```bash
+flake8 app/ tests/ main.py --statistics --count
+```
+
+**Configuration utilisée** : `.flake8` avec max-line-length=120 et règles souples
 
 ## 📜 Licence
 

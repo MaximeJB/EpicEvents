@@ -2,6 +2,7 @@
 
 Ce module configure la connexion à PostgreSQL via SQLAlchemy.
 """
+
 import os
 
 from dotenv import load_dotenv

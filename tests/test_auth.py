@@ -24,7 +24,7 @@ from app.auth import (
     login,
     get_current_user,
     require_role,
-    SECRET_KEY
+    SECRET_KEY,
 )
 from app.models import User
 
@@ -55,7 +55,7 @@ class TestPasswordHashing:
         """Test : verify_password retourne True avec le bon mot de passe."""
         plain = "mypassword"
         hashed = hash_password(plain)
-        assert verify_password(hashed,plain) is True
+        assert verify_password(hashed, plain) is True
 
     def test_verify_password_with_wrong_password(self):
         """Test : verify_password retourne False avec un mauvais mot de passe."""
@@ -94,8 +94,8 @@ class TestJWTTokens:
         exp_datetime = datetime.fromtimestamp(payload["exp"])
         now = datetime.utcnow()
         diff_hours = (exp_datetime - now).total_seconds() / 3600
-        
-        assert 24.8  < diff_hours  < 25.2
+
+        assert 24.8 < diff_hours < 25.2
 
     def test_decode_token_with_valid_token(self):
         """Test : decode_token décode correctement un token valide."""
@@ -107,7 +107,7 @@ class TestJWTTokens:
 
     def test_decode_token_with_invalid_signature(self):
         """Test : decode_token lève une exception pour un token invalide."""
-        # Créer un token avec une mauvaise clé
+        
         fake_token = jwt.encode({"user_id": 1}, "wrong_secret", algorithm="HS256")
 
         with pytest.raises(jwt.InvalidTokenError):
@@ -115,12 +115,8 @@ class TestJWTTokens:
 
     def test_decode_token_with_expired_token(self):
         """Test : decode_token lève une exception pour un token expiré."""
-        # Créer un token expiré (exp dans le passé)
-        payload = {
-            "user_id": 1,
-            "role": "sales",
-            "exp": datetime.utcnow() - timedelta(hours=1)  # Expiré il y a 1h
-        }
+        
+        payload = {"user_id": 1, "role": "sales", "exp": datetime.utcnow() - timedelta(hours=1)}  # Expiré il y a 1h
         expired_token = jwt.encode(payload, SECRET_KEY, algorithm="HS256")
 
         with pytest.raises(jwt.ExpiredSignatureError):
@@ -218,11 +214,7 @@ class TestGetCurrentUser:
 
     def test_get_current_user_returns_none_with_expired_token(self, db_session, user_sales, clean_token_file):
         """Test : get_current_user retourne None avec un token expiré."""
-        payload = {
-            "user_id": user_sales.id,
-            "role": "sales",
-            "exp": datetime.utcnow() - timedelta(hours=1)
-        }
+        payload = {"user_id": user_sales.id, "role": "sales", "exp": datetime.utcnow() - timedelta(hours=1)}
         expired_token = jwt.encode(payload, SECRET_KEY, algorithm="HS256")
         save_token(expired_token)
 
@@ -242,6 +234,7 @@ class TestRequireRoleDecorator:
 
     def test_require_role_allows_authorized_role(self, db_session, user_sales):
         """Test : @require_role autorise les rôles permis."""
+
         @require_role("sales", "gestion")
         def test_function(db, current_user):
             return "success"
@@ -251,6 +244,7 @@ class TestRequireRoleDecorator:
 
     def test_require_role_blocks_unauthorized_role(self, db_session, user_support):
         """Test : @require_role bloque les rôles non autorisés."""
+
         @require_role("sales", "gestion")
         def test_function(db, current_user):
             return "success"
@@ -262,6 +256,7 @@ class TestRequireRoleDecorator:
 
     def test_require_role_with_single_role(self, db_session, user_gestion):
         """Test : @require_role fonctionne avec un seul rôle."""
+
         @require_role("gestion")
         def test_function(db, current_user):
             return "gestion only"
@@ -271,6 +266,7 @@ class TestRequireRoleDecorator:
 
     def test_require_role_with_multiple_roles(self, db_session, user_sales, user_gestion):
         """Test : @require_role autorise plusieurs rôles."""
+
         @require_role("sales", "support", "gestion")
         def test_function(db, current_user):
             return current_user.role.name

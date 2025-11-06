@@ -1,4 +1,5 @@
 """Groupe composé de toutes les possibilités des événements."""
+
 from datetime import datetime
 
 import click
@@ -7,8 +8,8 @@ from rich.panel import Panel
 from rich.table import Table
 
 from app.auth import get_current_user
-from app.crud.crud_contract import get_contract
-from app.crud.crud_event import (
+from app.managers.contract import get_contract
+from app.managers.event import (
     assign_support,
     create_event,
     get_event,
@@ -67,7 +68,7 @@ def create():
             f"[bold]Commercial:[/bold] {contract.client.sales_contact.name}",
             title="📋 Contrat sélectionné",
             border_style="cyan",
-            padding=(1, 2)
+            padding=(1, 2),
         )
         console.print(panel)
 
@@ -111,12 +112,15 @@ def create():
             return
 
         try:
-            new_event = create_event(db=db, current_user=user,
-                                     start_date=start_date,
-                                     end_date=end_date,
-                                     location=location,
-                                     attendees=attendees,
-                                     contract_id=contract_id)
+            new_event = create_event(
+                db=db,
+                current_user=user,
+                start_date=start_date,
+                end_date=end_date,
+                location=location,
+                attendees=attendees,
+                contract_id=contract_id,
+            )
             panel = Panel(
                 f"[green]Événement créé avec succès ![/green]\n\n"
                 f"[bold]ID:[/bold] {new_event.id}\n"
@@ -126,7 +130,7 @@ def create():
                 f"[bold]Participants:[/bold] {new_event.attendees}",
                 title="✓ Nouvel événement",
                 border_style="green",
-                padding=(1, 2)
+                padding=(1, 2),
             )
             console.print(panel)
         except ValueError as e:
@@ -180,7 +184,7 @@ def list():
                 evt.location,
                 evt.start_date.strftime("%d/%m/%Y %H:%M"),
                 str(evt.attendees),
-                support_name
+                support_name,
             )
 
         console.print(table)
@@ -227,14 +231,18 @@ def update():
             f"[bold]Support:[/bold] {support_info}\n"
             f"[bold]Notes:[/bold] {target_event.notes or 'Aucune'}",
             title="Événement actuel",
-            border_style="blue"
+            border_style="blue",
         )
         console.print(panel)
         console.print("[yellow]Laissez vide pour ne pas modifier un champ[/yellow]\n")
 
         location = click.prompt("Nouveau lieu", default="", show_default=False)
-        start_date_str = click.prompt("Nouvelle date début (JJ/MM/AAAA HH:MM ou JJ/MM/AAAA)", default="", show_default=False)
-        end_date_str = click.prompt("Nouvelle date fin (JJ/MM/AAAA HH:MM ou JJ/MM/AAAA)", default="", show_default=False)
+        start_date_str = click.prompt(
+            "Nouvelle date début (JJ/MM/AAAA HH:MM ou JJ/MM/AAAA)", default="", show_default=False
+        )
+        end_date_str = click.prompt(
+            "Nouvelle date fin (JJ/MM/AAAA HH:MM ou JJ/MM/AAAA)", default="", show_default=False
+        )
         attendees_str = click.prompt("Nouveau nombre de participants", default="", show_default=False)
         notes = click.prompt("Nouvelles notes", default="", show_default=False)
 
@@ -292,7 +300,9 @@ def update():
         try:
             updated = update_event(db, current_user=user, event_id=event_id, **kwargs)
             console.print("\n[green]╭───────────────────────────────────────╮[/green]")
-            console.print(f"[green]│ ✓ Événement mis à jour : {updated.contract.client.name} - {updated.location} (ID: {updated.id}){' ' * (38 - len(f'✓ Événement mis à jour : {updated.contract.client.name} - {updated.location} (ID: {updated.id})'))}│[/green]")
+            console.print(
+                f"[green]│ ✓ Événement mis à jour : {updated.contract.client.name} - {updated.location} (ID: {updated.id}){' ' * (38 - len(f'✓ Événement mis à jour : {updated.contract.client.name} - {updated.location} (ID: {updated.id})'))}│[/green]"
+            )
             console.print("[green]╰───────────────────────────────────────╯[/green]\n")
         except ValueError as e:
             console.print("\n[red]╭───────────────────────────────────────╮[/red]")
@@ -335,7 +345,9 @@ def assign():
             console.print("[red]╰───────────────────────────────────────╯[/red]\n")
             return
 
-        current_support = target_event.support_contact.name if target_event.support_contact else "[red]Non assigné[/red]"
+        current_support = (
+            target_event.support_contact.name if target_event.support_contact else "[red]Non assigné[/red]"
+        )
         panel = Panel(
             f"[bold]Client:[/bold] {target_event.contract.client.name}\n"
             f"[bold]Lieu:[/bold] {target_event.location}\n"
@@ -343,7 +355,7 @@ def assign():
             f"[bold]Support actuel:[/bold] {current_support}",
             title="🎯 Événement à assigner",
             border_style="yellow",
-            padding=(1, 2)
+            padding=(1, 2),
         )
         console.print(panel)
 
@@ -358,7 +370,7 @@ def assign():
                 f"[bold]Support:[/bold] {updated_event.support_contact.name}",
                 title="✓ Support assigné",
                 border_style="green",
-                padding=(1, 2)
+                padding=(1, 2),
             )
             console.print(panel)
         except ValueError as e:

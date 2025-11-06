@@ -10,12 +10,7 @@ Ces tests couvrent :
 
 import pytest
 from decimal import Decimal
-from app.crud.crud_contract import (
-    create_contract,
-    get_contract,
-    list_contracts,
-    update_contract
-)
+from app.managers.contract import create_contract, get_contract, list_contracts, update_contract
 from app.models import Contract
 
 
@@ -30,7 +25,7 @@ class TestCreateContract:
             status="pending",
             total_amount=Decimal("10000.00"),
             remaining_amount=Decimal("5000.00"),
-            client_id=client_sample.id
+            client_id=client_sample.id,
         )
 
         assert contract is not None
@@ -46,7 +41,7 @@ class TestCreateContract:
             status="pending",
             total_amount=Decimal("1000.00"),
             remaining_amount=Decimal("1000.00"),
-            client_id=client_sample.id
+            client_id=client_sample.id,
         )
 
         assert contract.status == "pending"
@@ -60,7 +55,7 @@ class TestCreateContract:
                 status="pending",
                 total_amount=Decimal("1000.00"),
                 remaining_amount=Decimal("1000.00"),
-                client_id=client_sample.id
+                client_id=client_sample.id,
             )
 
     def test_support_cannot_create_contract(self, db_session, user_support, client_sample):
@@ -72,7 +67,7 @@ class TestCreateContract:
                 status="pending",
                 total_amount=Decimal("1000.00"),
                 remaining_amount=Decimal("1000.00"),
-                client_id=client_sample.id
+                client_id=client_sample.id,
             )
 
     def test_create_contract_with_nonexistent_client(self, db_session, user_gestion):
@@ -84,7 +79,7 @@ class TestCreateContract:
                 status="pending",
                 total_amount=Decimal("1000.00"),
                 remaining_amount=Decimal("1000.00"),
-                client_id=99999
+                client_id=99999,
             )
 
         assert "Client not found" in str(exc_info.value)
@@ -111,7 +106,7 @@ class TestListContracts:
 
     def test_sales_sees_only_their_clients_contracts(self, db_session, all_users):
         """Test : un commercial ne voit que les contrats de SES clients."""
-        from app.crud.crud_client import create_client
+        from app.managers.client import create_client
 
         user_sales = all_users["sales"]
         user_gestion = all_users["gestion"]
@@ -123,12 +118,13 @@ class TestListContracts:
         contract2 = create_contract(db_session, user_gestion, "signed", Decimal("2000"), Decimal("1000"), client2.id)
 
         from app.models import User
+
         user_sales2 = User(
             name="Sales 2",
             email="sales2@test.com",
             password_hash="hash",
             department="sales",
-            role_id=all_users["sales"].role_id
+            role_id=all_users["sales"].role_id,
         )
         db_session.add(user_sales2)
         db_session.commit()
@@ -141,7 +137,7 @@ class TestListContracts:
 
     def test_gestion_sees_all_contracts(self, db_session, all_users):
         """Test : la gestion voit tous les contrats."""
-        from app.crud.crud_client import create_client
+        from app.managers.client import create_client
 
         user_sales = all_users["sales"]
         user_gestion = all_users["gestion"]
@@ -157,13 +153,13 @@ class TestListContracts:
 
     def test_support_sees_all_contracts(self, db_session, all_users):
         """Test : le support voit tous les contrats (lecture seule)."""
-        from app.crud.crud_client import create_client
+        from app.managers.client import create_client
 
         user_sales = all_users["sales"]
         user_gestion = all_users["gestion"]
         user_support = all_users["support"]
 
-        # Créer un client pour ce test
+        
         client = create_client(db_session, user_sales, "Test Client", "+111", "Test Corp", "test@corp.com")
         contract1 = create_contract(db_session, user_gestion, "signed", Decimal("1000"), Decimal("500"), client.id)
 
@@ -181,7 +177,7 @@ class TestUpdateContract:
             current_user=user_gestion,
             contract_id=contract_sample.id,
             status="signed",
-            remaining_amount=Decimal("0.00")
+            remaining_amount=Decimal("0.00"),
         )
 
         assert updated.status == "signed"
@@ -189,79 +185,59 @@ class TestUpdateContract:
 
     def test_sales_can_update_their_clients_contracts(self, db_session, all_users):
         """Test : un commercial peut modifier les contrats de SES clients."""
-        from app.crud.crud_client import create_client
+        from app.managers.client import create_client
 
         user_sales = all_users["sales"]
         user_gestion = all_users["gestion"]
 
-        # Sales crée un client
+        
         client = create_client(db_session, user_sales, "Client", "+111", "Corp", "client@update.com")
 
-        # Gestion crée un contrat pour ce client
+        
         contract = create_contract(db_session, user_gestion, "pending", Decimal("1000"), Decimal("500"), client.id)
 
-        # Sales peut le modifier
-        updated = update_contract(
-            db=db_session,
-            current_user=user_sales,
-            contract_id=contract.id,
-            status="signed"
-        )
+        
+        updated = update_contract(db=db_session, current_user=user_sales, contract_id=contract.id, status="signed")
 
         assert updated.status == "signed"
 
     def test_sales_cannot_update_other_clients_contracts(self, db_session, all_users):
         """Test : un commercial NE PEUT PAS modifier les contrats d'autres clients."""
-        from app.crud.crud_client import create_client
+        from app.managers.client import create_client
         from app.models import User
 
         user_sales1 = all_users["sales"]
         user_gestion = all_users["gestion"]
 
-        # Créer un second commercial
+        
         user_sales2 = User(
             name="Sales 2",
             email="sales2@test.com",
             password_hash="hash",
             department="sales",
-            role_id=all_users["sales"].role_id
+            role_id=all_users["sales"].role_id,
         )
         db_session.add(user_sales2)
         db_session.commit()
 
-        # Sales1 crée un client
+        
         client = create_client(db_session, user_sales1, "Client", "+111", "Corp", "client@sales1.com")
 
-        # Gestion crée un contrat
+        
         contract = create_contract(db_session, user_gestion, "pending", Decimal("1000"), Decimal("500"), client.id)
 
-        # Sales2 tente de le modifier
+        
         with pytest.raises(PermissionError):
-            update_contract(
-                db=db_session,
-                current_user=user_sales2,
-                contract_id=contract.id,
-                status="signed"
-            )
+            update_contract(db=db_session, current_user=user_sales2, contract_id=contract.id, status="signed")
 
     def test_support_cannot_update_contract(self, db_session, user_support, contract_sample):
         """Test : le support NE PEUT PAS modifier de contrats."""
         with pytest.raises(PermissionError):
-            update_contract(
-                db=db_session,
-                current_user=user_support,
-                contract_id=contract_sample.id,
-                status="signed"
-            )
+            update_contract(db=db_session, current_user=user_support, contract_id=contract_sample.id, status="signed")
 
     def test_update_contract_raises_error_if_not_found(self, db_session, user_gestion):
         """Test : lève une erreur si le contrat n'existe pas."""
         with pytest.raises(ValueError) as exc_info:
-            update_contract(
-                db=db_session,
-                current_user=user_gestion,
-                contract_id=99999,
-                status="signed"
-            )
+            update_contract(db=db_session, current_user=user_gestion, contract_id=99999, status="signed")
 
         assert "Contract not found" in str(exc_info.value)

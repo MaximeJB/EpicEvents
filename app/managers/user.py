@@ -1,18 +1,13 @@
 """Opérations CRUD pour les utilisateurs."""
+
 import sentry_sdk
-from sqlalchemy.orm import Session
 
 from app.auth import hash_password, require_role
 from app.models import User
 
 
 @require_role("gestion")
-def create_user(db, current_user,
-                email,
-                password,
-                name,
-                department,
-                role_id):
+def create_user(db, current_user, email, password, name, department, role_id):
     """Crée un utilisateur.
 
     Args:
@@ -31,18 +26,13 @@ def create_user(db, current_user,
         PermissionError: Si l'utilisateur n'est pas gestion
     """
     hashed_password = hash_password(password)
-    new_user = User(email=email,
-                    password_hash=hashed_password,
-                    name=name,
-                    department=department,
-                    role_id=role_id)
+    new_user = User(email=email, password_hash=hashed_password, name=name, department=department, role_id=role_id)
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
 
     sentry_sdk.capture_message(
-        f"Collaborateur créé : {new_user.email} (ID: {new_user.id}) par {current_user.email}",
-        level="info"
+        f"Collaborateur créé : {new_user.email} (ID: {new_user.id}) par {current_user.email}", level="info"
     )
 
     return new_user
@@ -120,8 +110,7 @@ def update_user(db, current_user, user_id, **kwargs):
     db.refresh(user)
 
     sentry_sdk.capture_message(
-        f"Collaborateur modifié : {user.email} (ID: {user.id}) par {current_user.email}",
-        level="info"
+        f"Collaborateur modifié : {user.email} (ID: {user.id}) par {current_user.email}", level="info"
     )
 
     return user

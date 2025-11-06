@@ -2,18 +2,19 @@
 
 Regroupe toutes les commandes sous un même programme et initialise Sentry.
 """
+
 import os
 
 import click
 from dotenv import load_dotenv
 import sentry_sdk
 
-from app.views.auth_cli import auth
-from app.views.client_cli import client
-from app.views.contract_cli import contract
-from app.views.event_cli import event
+from app.views.auth import auth
+from app.views.client import client
+from app.views.contract import contract
+from app.views.event import event
 from app.cli_app import menu_principal
-from app.views.user_cli import collab
+from app.views.user import collab
 
 load_dotenv()
 

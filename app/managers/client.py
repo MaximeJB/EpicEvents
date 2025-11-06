@@ -1,5 +1,4 @@
 """Opérations CRUD pour les clients."""
-from sqlalchemy.orm import Session
 
 from app.auth import require_role
 from app.models import Client
@@ -25,11 +24,7 @@ def create_client(db, current_user, name, phone, company, email):
     Raises:
         PermissionError: Si le rôle n'est pas autorisé (sales ou gestion)
     """
-    client = Client(name=name,
-                    email=email,
-                    phone_number=phone,
-                    company_name=company,
-                    sales_contact_id=current_user.id)
+    client = Client(name=name, email=email, phone_number=phone, company_name=company, sales_contact_id=current_user.id)
     db.add(client)
     db.commit()
     db.refresh(client)
@@ -87,14 +82,14 @@ def update_client(db, current_user, client_id, **kwargs):
     """
     client = get_client(db, client_id)
     if not client:
-         raise ValueError("Client not found")
+        raise ValueError("Client not found")
 
     if current_user.role.name == "sales" and client.sales_contact_id != current_user.id:
         raise PermissionError("L'utilisateur n'a pas la permission de faire ça")
 
     for key, value in kwargs.items():
-         if hasattr(client, key):
-              setattr(client, key, value)
+        if hasattr(client, key):
+            setattr(client, key, value)
 
     db.commit()
     db.refresh(client)

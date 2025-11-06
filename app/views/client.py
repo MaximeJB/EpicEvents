@@ -1,4 +1,5 @@
 """Commandes CLI pour la gestion des clients."""
+
 import logging
 
 import click
@@ -7,7 +8,7 @@ from rich.panel import Panel
 from rich.table import Table
 
 from app.auth import get_current_user
-from app.crud.crud_client import create_client, get_client, list_clients, update_client
+from app.managers.client import create_client, get_client, list_clients, update_client
 from app.db import SessionLocal
 
 logger = logging.getLogger(__name__)
@@ -42,7 +43,9 @@ def create():
             try:
                 new_client = create_client(db, current_user=user, name=name, phone=phone, company=company, email=email)
                 console.print("\n[green]╭───────────────────────────────────────╮[/green]")
-                console.print(f"[green]│ ✓ Client créé : {new_client.name} (ID: {new_client.id}){' ' * (38 - len(f'✓ Client créé : {new_client.name} (ID: {new_client.id})'))}│[/green]")
+                console.print(
+                    f"[green]│ ✓ Client créé : {new_client.name} (ID: {new_client.id}){' ' * (38 - len(f'✓ Client créé : {new_client.name} (ID: {new_client.id})'))}│[/green]"
+                )
                 console.print("[green]╰───────────────────────────────────────╯[/green]\n")
             except ValueError as e:
                 console.print("\n[red]╭───────────────────────────────────────╮[/red]")
@@ -50,7 +53,9 @@ def create():
                 console.print("[red]╰───────────────────────────────────────╯[/red]\n")
             except PermissionError as e:
                 console.print("\n[red]╭───────────────────────────────────────╮[/red]")
-                console.print(f"[red]│ ✗ Permission refusée : {e}{' ' * (38 - len(f'✗ Permission refusée : {e}'))}│[/red]")
+                console.print(
+                    f"[red]│ ✗ Permission refusée : {e}{' ' * (38 - len(f'✗ Permission refusée : {e}'))}│[/red]"
+                )
                 console.print("[red]╰───────────────────────────────────────╯[/red]\n")
     finally:
         db.close()
@@ -86,13 +91,7 @@ def list():
                 table.add_column("Email", style="blue")
 
                 for client in clients:
-                    table.add_row(
-                        str(client.id),
-                        client.name,
-                        client.company_name,
-                        client.phone_number,
-                        client.email
-                    )
+                    table.add_row(str(client.id), client.name, client.company_name, client.phone_number, client.email)
 
                 console.print(table)
     finally:
@@ -129,7 +128,7 @@ def update():
             f"[bold]Email:[/bold] {target_client.email}\n"
             f"[bold]Téléphone:[/bold] {target_client.phone_number}",
             title="Client actuel",
-            border_style="blue"
+            border_style="blue",
         )
         console.print(panel)
         console.print("[yellow]Laissez vide pour ne pas modifier un champ[/yellow]\n")
@@ -158,7 +157,9 @@ def update():
         try:
             updated = update_client(db, current_user=user, client_id=client_id, **kwargs)
             console.print("\n[green]╭───────────────────────────────────────╮[/green]")
-            console.print(f"[green]│ ✓ Client mis à jour : {updated.name} (ID: {updated.id}){' ' * (38 - len(f'✓ Client mis à jour : {updated.name} (ID: {updated.id})'))}│[/green]")
+            console.print(
+                f"[green]│ ✓ Client mis à jour : {updated.name} (ID: {updated.id}){' ' * (38 - len(f'✓ Client mis à jour : {updated.name} (ID: {updated.id})'))}│[/green]"
+            )
             console.print("[green]╰───────────────────────────────────────╯[/green]\n")
         except ValueError as e:
             logger.error("Exception levé lors de la mise à jour d'un client")

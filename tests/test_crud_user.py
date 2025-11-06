@@ -10,14 +10,7 @@ Ces tests couvrent :
 """
 
 import pytest
-from app.crud.crud_user import (
-    create_user,
-    get_user,
-    get_user_by_id,
-    list_users,
-    update_user,
-    delete_user
-)
+from app.managers.user import create_user, get_user, get_user_by_id, list_users, update_user, delete_user
 from app.models import User
 from app.auth import verify_password
 
@@ -34,7 +27,7 @@ class TestCreateUser:
             password="securepassword",
             name="New User",
             department="sales",
-            role_id=role_sales.id
+            role_id=role_sales.id,
         )
 
         assert user is not None
@@ -51,10 +44,9 @@ class TestCreateUser:
             password=password,
             name="Test User",
             department="sales",
-            role_id=role_sales.id
+            role_id=role_sales.id,
         )
 
-       
         assert user.password_hash != password
         assert verify_password(user.password_hash, password) is True
 
@@ -67,10 +59,10 @@ class TestCreateUser:
             password="password123",
             name="Stored User",
             department="sales",
-            role_id=role_sales.id
+            role_id=role_sales.id,
         )
 
-        # Vérifier qu'on peut le retrouver en base
+        
         db_user = db_session.query(User).filter(User.email == "stored@test.com").first()
         assert db_user is not None
         assert db_user.id == user.id
@@ -84,10 +76,10 @@ class TestCreateUser:
             password="password123",
             name="Refreshed User",
             department="sales",
-            role_id=role_sales.id
+            role_id=role_sales.id,
         )
 
-        # L'ID doit avoir été assigné par la base
+        
         assert user.id is not None
         assert isinstance(user.id, int)
 
@@ -101,7 +93,7 @@ class TestUserCRUDIntegration:
         user2 = create_user(db_session, user_gestion, "user2@test.com", "pass2", "User 2", "sales", role_sales.id)
         user3 = create_user(db_session, user_gestion, "user3@test.com", "pass3", "User 3", "sales", role_sales.id)
 
-        # Vérifier que les 3 users créés existent bien
+        
         assert user1 is not None
         assert user2 is not None
         assert user3 is not None
@@ -114,7 +106,6 @@ class TestUserCRUDIntegration:
         from sqlalchemy.exc import IntegrityError
 
         create_user(db_session, user_gestion, "duplicate@test.com", "pass1", "User 1", "sales", role_sales.id)
-
 
         with pytest.raises(IntegrityError):
             create_user(db_session, user_gestion, "duplicate@test.com", "pass2", "User 2", "sales", role_sales.id)
@@ -158,7 +149,7 @@ class TestListUsers:
         user_gestion = all_users["gestion"]
         users = list_users(db_session, user_gestion)
 
-        # all_users crée 3 users (sales, support, gestion)
+        
         assert len(users) == 3
         assert any(u.email == "sales@test.com" for u in users)
         assert any(u.email == "support@test.com" for u in users)
@@ -185,7 +176,7 @@ class TestUpdateUser:
             current_user=user_gestion,
             user_id=user_sales.id,
             name="Updated Sales User",
-            department="marketing"
+            department="marketing",
         )
 
         assert updated.name == "Updated Sales User"
@@ -194,12 +185,7 @@ class TestUpdateUser:
 
     def test_gestion_can_update_user_role(self, db_session, user_gestion, user_sales, role_support):
         """Test : la gestion peut changer le rôle d'un utilisateur."""
-        updated = update_user(
-            db=db_session,
-            current_user=user_gestion,
-            user_id=user_sales.id,
-            role_id=role_support.id
-        )
+        updated = update_user(db=db_session, current_user=user_gestion, user_id=user_sales.id, role_id=role_support.id)
 
         db_session.refresh(updated)
         assert updated.role_id == role_support.id
@@ -208,32 +194,17 @@ class TestUpdateUser:
     def test_sales_cannot_update_user(self, db_session, user_sales, user_support):
         """Test : les commerciaux NE PEUVENT PAS modifier d'utilisateurs."""
         with pytest.raises(PermissionError):
-            update_user(
-                db=db_session,
-                current_user=user_sales,
-                user_id=user_support.id,
-                name="Hacked Name"
-            )
+            update_user(db=db_session, current_user=user_sales, user_id=user_support.id, name="Hacked Name")
 
     def test_support_cannot_update_user(self, db_session, user_support, user_sales):
         """Test : le support NE PEUT PAS modifier d'utilisateurs."""
         with pytest.raises(PermissionError):
-            update_user(
-                db=db_session,
-                current_user=user_support,
-                user_id=user_sales.id,
-                name="Forbidden"
-            )
+            update_user(db=db_session, current_user=user_support, user_id=user_sales.id, name="Forbidden")
 
     def test_update_user_raises_error_if_not_found(self, db_session, user_gestion):
         """Test : lève une erreur si l'utilisateur n'existe pas."""
         with pytest.raises(ValueError) as exc_info:
-            update_user(
-                db=db_session,
-                current_user=user_gestion,
-                user_id=99999,
-                name="Ghost User"
-            )
+            update_user(db=db_session, current_user=user_gestion, user_id=99999, name="Ghost User")
 
         assert "User not found" in str(exc_info.value)
 
@@ -243,7 +214,7 @@ class TestDeleteUser:
 
     def test_gestion_can_delete_user(self, db_session, user_gestion, role_sales):
         """Test : la gestion peut supprimer un utilisateur."""
-        # Créer un utilisateur à supprimer
+        
         user_to_delete = create_user(
             db=db_session,
             current_user=user_gestion,
@@ -251,16 +222,16 @@ class TestDeleteUser:
             password="password123",
             name="To Delete",
             department="sales",
-            role_id=role_sales.id
+            role_id=role_sales.id,
         )
 
         user_id = user_to_delete.id
 
-        # Supprimer
+        
         result = delete_user(db_session, user_gestion, user_id)
         assert result is True
 
-        # Vérifier qu'il n'existe plus
+        
         deleted = get_user_by_id(db_session, user_id)
         assert deleted is None
 

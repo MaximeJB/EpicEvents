@@ -1,4 +1,5 @@
 """Commandes CLI pour l'authentification."""
+
 import os
 from getpass import getpass
 
@@ -39,7 +40,7 @@ def login():
                 f"[bold]Département:[/bold] {user.department}",
                 title="✓ Connexion réussie",
                 border_style="green",
-                padding=(1, 2)
+                padding=(1, 2),
             )
             console.print(panel)
         else:
@@ -63,7 +64,7 @@ def logout():
                 f"À bientôt sur Epic Events !",
                 title="✓ Déconnexion",
                 border_style="green",
-                padding=(1, 2)
+                padding=(1, 2),
             )
             os.remove(".epicevents_token")
             console.print(panel)
@@ -95,7 +96,7 @@ def whoami():
                 f"[bold cyan]Département:[/bold cyan] {user.department}",
                 title="👤 Profil utilisateur",
                 border_style="blue",
-                padding=(1, 2)
+                padding=(1, 2),
             )
             console.print(panel)
     finally:

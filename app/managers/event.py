@@ -1,7 +1,8 @@
 """Opérations CRUD pour les événements."""
+
 from app.auth import require_role
-from app.crud.crud_contract import get_contract
-from app.crud.crud_user import get_user_by_id
+from app.managers.contract import get_contract
+from app.managers.user import get_user_by_id
 from app.models import Client, Contract, Event
 
 
@@ -34,7 +35,14 @@ def create_event(db, current_user, start_date, end_date, location, attendees, co
     if contract.client.sales_contact_id != current_user.id:
         raise PermissionError("Vous ne pouvez créer un événements que pour vos client")
 
-    event = Event(start_date=start_date, end_date=end_date, location=location, attendees=attendees, contract_id=contract_id, notes=notes)
+    event = Event(
+        start_date=start_date,
+        end_date=end_date,
+        location=location,
+        attendees=attendees,
+        contract_id=contract_id,
+        notes=notes,
+    )
     db.add(event)
     db.commit()
     db.refresh(event)
@@ -74,13 +82,16 @@ def update_event(db, current_user, event_id, **kwargs):
     event = get_event(db, event_id)
     if not event:
         raise ValueError("L'événement n'existe pas")
-    if current_user.role.name == "support" :
+    if current_user.role.name == "support":
         if event.support_contact_id != current_user.id:
             raise PermissionError("Vous ne pouvez modifier un événements que pour vos client")
 
-    for key,value, in kwargs.items():
+    for (
+        key,
+        value,
+    ) in kwargs.items():
         if hasattr(event, key):
-                setattr(event, key, value)
+            setattr(event, key, value)
 
     db.commit()
     db.refresh(event)

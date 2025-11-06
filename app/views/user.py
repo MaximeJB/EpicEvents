@@ -1,4 +1,5 @@
 """Groupe composé de toutes les possibilités des collaborateurs."""
+
 from getpass import getpass
 
 import click
@@ -7,7 +8,7 @@ from rich.panel import Panel
 from rich.table import Table
 
 from app.auth import get_current_user
-from app.crud.crud_user import (
+from app.managers.user import (
     create_user,
     delete_user,
     get_user_by_id,
@@ -64,12 +65,15 @@ def create():
             return
 
         try:
-            new_collab = create_user(db=db, current_user=user,
-                                     name=name,
-                                     email=email,
-                                     password=password,
-                                     department=department,
-                                     role_id=role.id)
+            new_collab = create_user(
+                db=db,
+                current_user=user,
+                name=name,
+                email=email,
+                password=password,
+                department=department,
+                role_id=role.id,
+            )
             panel = Panel(
                 f"[green]Collaborateur créé avec succès ![/green]\n\n"
                 f"[bold]Nom:[/bold] {new_collab.name}\n"
@@ -78,7 +82,7 @@ def create():
                 f"[bold]Département:[/bold] {new_collab.department}",
                 title="✓ Nouveau collaborateur",
                 border_style="green",
-                padding=(1, 2)
+                padding=(1, 2),
             )
             console.print(panel)
         except ValueError as e:
@@ -124,13 +128,7 @@ def list():
         table.add_column("Rôle", justify="center", style="magenta")
 
         for collab in collabs:
-            table.add_row(
-                str(collab.id),
-                collab.name,
-                collab.email,
-                collab.department,
-                collab.role.name
-            )
+            table.add_row(str(collab.id), collab.name, collab.email, collab.department, collab.role.name)
 
         console.print(table)
     finally:
@@ -173,7 +171,7 @@ def update():
             f"[bold]Département:[/bold] {target_collab.department}\n"
             f"[bold]Rôle:[/bold] {target_collab.role.name}",
             title="Collaborateur actuel",
-            border_style="blue"
+            border_style="blue",
         )
         console.print(panel)
         console.print("[yellow]Laissez vide pour ne pas modifier un champ[/yellow]\n")
@@ -208,7 +206,9 @@ def update():
         try:
             updated = update_user(db, current_user=user, user_id=collab_id, **kwargs)
             console.print("\n[green]╭───────────────────────────────────────╮[/green]")
-            console.print(f"[green]│ ✓ Collaborateur mis à jour : {updated.name} - {updated.role.name} (ID: {updated.id}){' ' * (38 - len(f'✓ Collaborateur mis à jour : {updated.name} - {updated.role.name} (ID: {updated.id})'))}│[/green]")
+            console.print(
+                f"[green]│ ✓ Collaborateur mis à jour : {updated.name} - {updated.role.name} (ID: {updated.id}){' ' * (38 - len(f'✓ Collaborateur mis à jour : {updated.name} - {updated.role.name} (ID: {updated.id})'))}│[/green]"
+            )
             console.print("[green]╰───────────────────────────────────────╯[/green]\n")
         except ValueError as e:
             console.print("\n[red]╭───────────────────────────────────────╮[/red]")
@@ -259,7 +259,7 @@ def delete():
             f"[bold]Email:[/bold] {target_collab.email}\n"
             f"[bold]Rôle:[/bold] {target_collab.role.name}",
             title="⚠ Collaborateur à supprimer",
-            border_style="red"
+            border_style="red",
         )
         console.print(panel)
 
@@ -273,7 +273,9 @@ def delete():
         try:
             delete_user(db, current_user=user, user_id=collab_id)
             console.print("\n[green]╭───────────────────────────────────────╮[/green]")
-            console.print(f"[green]│ ✓ Collaborateur {target_collab.name} supprimé{' ' * (38 - len(f'✓ Collaborateur {target_collab.name} supprimé'))}│[/green]")
+            console.print(
+                f"[green]│ ✓ Collaborateur {target_collab.name} supprimé{' ' * (38 - len(f'✓ Collaborateur {target_collab.name} supprimé'))}│[/green]"
+            )
             console.print(f"[green]│   avec succès{' ' * (38 - len('  avec succès'))}│[/green]")
             console.print("[green]╰───────────────────────────────────────╯[/green]\n")
         except ValueError as e:

@@ -58,7 +58,7 @@ class TestUserModel:
             email="john@example.com",
             password_hash="hashed_password",
             department="sales",
-            role_id=role_sales.id
+            role_id=role_sales.id,
         )
         db_session.add(user)
         db_session.commit()
@@ -70,18 +70,8 @@ class TestUserModel:
 
     def test_user_email_is_unique(self, db_session, role_sales):
         """Test : l'email doit être unique."""
-        user1 = User(
-            name="User 1",
-            email="duplicate@example.com",
-            password_hash="hash1",
-            role_id=role_sales.id
-        )
-        user2 = User(
-            name="User 2",
-            email="duplicate@example.com",
-            password_hash="hash2",
-            role_id=role_sales.id
-        )
+        user1 = User(name="User 1", email="duplicate@example.com", password_hash="hash1", role_id=role_sales.id)
+        user2 = User(name="User 2", email="duplicate@example.com", password_hash="hash2", role_id=role_sales.id)
 
         db_session.add(user1)
         db_session.commit()
@@ -92,12 +82,7 @@ class TestUserModel:
 
     def test_user_has_role_relationship(self, db_session, role_sales):
         """Test : la relation User -> Role fonctionne."""
-        user = User(
-            name="Test User",
-            email="test@example.com",
-            password_hash="hash",
-            role_id=role_sales.id
-        )
+        user = User(name="Test User", email="test@example.com", password_hash="hash", role_id=role_sales.id)
         db_session.add(user)
         db_session.commit()
         db_session.refresh(user)
@@ -107,18 +92,8 @@ class TestUserModel:
 
     def test_role_has_users_relationship(self, db_session, role_sales):
         """Test : la relation Role -> Users fonctionne."""
-        user1 = User(
-            name="User 1",
-            email="user1@example.com",
-            password_hash="hash",
-            role_id=role_sales.id
-        )
-        user2 = User(
-            name="User 2",
-            email="user2@example.com",
-            password_hash="hash",
-            role_id=role_sales.id
-        )
+        user1 = User(name="User 1", email="user1@example.com", password_hash="hash", role_id=role_sales.id)
+        user2 = User(name="User 2", email="user2@example.com", password_hash="hash", role_id=role_sales.id)
 
         db_session.add_all([user1, user2])
         db_session.commit()
@@ -137,7 +112,7 @@ class TestClientModel:
             email="acme@corp.com",
             phone_number="+123456789",
             company_name="ACME Corporation",
-            sales_contact_id=user_sales.id
+            sales_contact_id=user_sales.id,
         )
         db_session.add(client)
         db_session.commit()
@@ -153,7 +128,7 @@ class TestClientModel:
             email="test@client.com",
             phone_number="+111111111",
             company_name="Test Corp",
-            sales_contact_id=user_sales.id
+            sales_contact_id=user_sales.id,
         )
         db_session.add(client)
         db_session.commit()
@@ -169,7 +144,7 @@ class TestClientModel:
             email="testclient2@corp.com",
             phone_number="+222222222",
             company_name="Test Corp",
-            sales_contact_id=user_sales.id
+            sales_contact_id=user_sales.id,
         )
         db_session.add(client)
         db_session.commit()
@@ -185,14 +160,14 @@ class TestClientModel:
             email="client1@corp.com",
             phone_number="+111111111",
             company_name="Corp 1",
-            sales_contact_id=user_sales.id
+            sales_contact_id=user_sales.id,
         )
         client2 = Client(
             name="Client 2",
             email="client2@corp.com",
             phone_number="+222222222",
             company_name="Corp 2",
-            sales_contact_id=user_sales.id
+            sales_contact_id=user_sales.id,
         )
 
         db_session.add_all([client1, client2])
@@ -211,7 +186,7 @@ class TestContractModel:
             total_amount=Decimal("10000.50"),
             remaining_amount=Decimal("5000.25"),
             status="pending",
-            client_id=client_sample.id
+            client_id=client_sample.id,
         )
         db_session.add(contract)
         db_session.commit()
@@ -223,9 +198,7 @@ class TestContractModel:
     def test_contract_has_default_status(self, db_session, client_sample):
         """Test : le statut par défaut est 'pending'."""
         contract = Contract(
-            total_amount=Decimal("1000.00"),
-            remaining_amount=Decimal("1000.00"),
-            client_id=client_sample.id
+            total_amount=Decimal("1000.00"), remaining_amount=Decimal("1000.00"), client_id=client_sample.id
         )
         db_session.add(contract)
         db_session.commit()
@@ -236,9 +209,7 @@ class TestContractModel:
     def test_contract_has_created_at(self, db_session, client_sample):
         """Test : created_at est automatiquement défini."""
         contract = Contract(
-            total_amount=Decimal("1000.00"),
-            remaining_amount=Decimal("1000.00"),
-            client_id=client_sample.id
+            total_amount=Decimal("1000.00"), remaining_amount=Decimal("1000.00"), client_id=client_sample.id
         )
         db_session.add(contract)
         db_session.commit()
@@ -250,9 +221,7 @@ class TestContractModel:
     def test_contract_has_client_relationship(self, db_session, client_sample):
         """Test : la relation Contract -> Client fonctionne."""
         contract = Contract(
-            total_amount=Decimal("1000.00"),
-            remaining_amount=Decimal("1000.00"),
-            client_id=client_sample.id
+            total_amount=Decimal("1000.00"), remaining_amount=Decimal("1000.00"), client_id=client_sample.id
         )
         db_session.add(contract)
         db_session.commit()
@@ -264,14 +233,10 @@ class TestContractModel:
     def test_client_has_contracts_relationship(self, db_session, client_sample):
         """Test : la relation Client -> Contracts fonctionne."""
         contract1 = Contract(
-            total_amount=Decimal("1000.00"),
-            remaining_amount=Decimal("500.00"),
-            client_id=client_sample.id
+            total_amount=Decimal("1000.00"), remaining_amount=Decimal("500.00"), client_id=client_sample.id
         )
         contract2 = Contract(
-            total_amount=Decimal("2000.00"),
-            remaining_amount=Decimal("1000.00"),
-            client_id=client_sample.id
+            total_amount=Decimal("2000.00"), remaining_amount=Decimal("1000.00"), client_id=client_sample.id
         )
 
         db_session.add_all([contract1, contract2])
@@ -293,7 +258,7 @@ class TestEventModel:
             attendees=100,
             notes="Important conference",
             support_contact_id=user_support.id,
-            contract_id=contract_sample.id
+            contract_id=contract_sample.id,
         )
         db_session.add(event)
         db_session.commit()
@@ -311,7 +276,7 @@ class TestEventModel:
             attendees=50,
             notes="Test event",
             support_contact_id=user_support.id,
-            contract_id=contract_sample.id
+            contract_id=contract_sample.id,
         )
         db_session.add(event)
         db_session.commit()
@@ -329,7 +294,7 @@ class TestEventModel:
             attendees=50,
             notes="Test event",
             support_contact_id=user_support.id,
-            contract_id=contract_sample.id
+            contract_id=contract_sample.id,
         )
         db_session.add(event)
         db_session.commit()
@@ -347,7 +312,7 @@ class TestEventModel:
             attendees=50,
             notes="Event 1",
             support_contact_id=user_support.id,
-            contract_id=contract_sample.id
+            contract_id=contract_sample.id,
         )
         event2 = Event(
             start_date=datetime(2025, 7, 1, 14, 0),
@@ -356,7 +321,7 @@ class TestEventModel:
             attendees=75,
             notes="Event 2",
             support_contact_id=user_support.id,
-            contract_id=contract_sample.id
+            contract_id=contract_sample.id,
         )
 
         db_session.add_all([event1, event2])

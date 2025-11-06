@@ -3,6 +3,7 @@
 Ce module définit les modèles de données pour les rôles, utilisateurs,
 clients, contrats et événements.
 """
+
 from datetime import datetime, UTC
 from decimal import Decimal
 
@@ -20,6 +21,7 @@ class Role(Base):
         name: Nom du rôle (sales, support, gestion)
         users: Liste des utilisateurs ayant ce rôle
     """
+
     __tablename__ = "roles"
 
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -42,13 +44,14 @@ class User(Base):
         clients: Liste des clients assignés à cet utilisateur
         events: Liste des événements assignés à cet utilisateur (support)
     """
+
     __tablename__ = "users"
 
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(100), nullable=False)
-    email: Mapped[str] = mapped_column(String(120), unique=True, nullable =False)
+    email: Mapped[str] = mapped_column(String(120), unique=True, nullable=False)
     password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
-    department: Mapped[str] = mapped_column(String(50), nullable = True)
+    department: Mapped[str] = mapped_column(String(50), nullable=True)
     is_superuser: Mapped[bool] = mapped_column(default=False)
 
     role: Mapped["Role"] = relationship(back_populates="users")
@@ -72,17 +75,18 @@ class Client(Base):
         sales_contact: Commercial assigné au client
         contracts: Liste des contrats du client
     """
+
     __tablename__ = "clients"
 
     id = Column(Integer, primary_key=True)
     name = Column(String(50), nullable=False)
-    phone_number : Mapped[str] = mapped_column(String(20), unique=True)
-    email: Mapped[str] = mapped_column(String(120), unique=True, nullable =False)
-    company_name : Mapped[str] = mapped_column(String(100), nullable=False)
-    created_at : Mapped[datetime] = mapped_column(default=lambda: datetime.now(UTC))
-    last_update : Mapped[datetime] = mapped_column(onupdate=func.now(), default=lambda: datetime.now(UTC))
+    phone_number: Mapped[str] = mapped_column(String(20), unique=True)
+    email: Mapped[str] = mapped_column(String(120), unique=True, nullable=False)
+    company_name: Mapped[str] = mapped_column(String(100), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(default=lambda: datetime.now(UTC))
+    last_update: Mapped[datetime] = mapped_column(onupdate=func.now(), default=lambda: datetime.now(UTC))
 
-    sales_contact_id : Mapped[int] = mapped_column(ForeignKey("users.id"))
+    sales_contact_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     sales_contact: Mapped["User"] = relationship(back_populates="clients")
     contracts: Mapped[list["Contract"]] = relationship("Contract", back_populates="client")
 
@@ -100,13 +104,14 @@ class Contract(Base):
         client: Client associé au contrat
         events: Liste des événements liés au contrat
     """
+
     __tablename__ = "contracts"
 
-    id =  Column(Integer, primary_key=True)
-    total_amount : Mapped[Decimal] = mapped_column(DECIMAL(10, 2))
-    remaining_amount : Mapped[Decimal] = mapped_column(DECIMAL(10, 2))
-    created_at : Mapped[datetime] = mapped_column(default=lambda: datetime.now(UTC))
-    status : Mapped[str] = mapped_column(default='pending')
+    id = Column(Integer, primary_key=True)
+    total_amount: Mapped[Decimal] = mapped_column(DECIMAL(10, 2))
+    remaining_amount: Mapped[Decimal] = mapped_column(DECIMAL(10, 2))
+    created_at: Mapped[datetime] = mapped_column(default=lambda: datetime.now(UTC))
+    status: Mapped[str] = mapped_column(default='pending')
 
     client_id: Mapped[int] = mapped_column(ForeignKey("clients.id"))
     client: Mapped["Client"] = relationship(back_populates="contracts")
@@ -128,18 +133,19 @@ class Event(Base):
         contract_id: Clé étrangère vers le contrat
         contract: Contrat associé à l'événement
     """
+
     __tablename__ = "events"
 
     id = Column(Integer, primary_key=True)
 
-    start_date : Mapped[datetime]
-    end_date : Mapped[datetime]
-    location : Mapped[str]
-    attendees : Mapped[int]
-    notes : Mapped[str]= mapped_column(nullable =True)
+    start_date: Mapped[datetime]
+    end_date: Mapped[datetime]
+    location: Mapped[str]
+    attendees: Mapped[int]
+    notes: Mapped[str] = mapped_column(nullable=True)
 
     support_contact: Mapped["User | None"] = relationship(back_populates="events")
-    support_contact_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable = True)
+    support_contact_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=True)
 
-    contract_id : Mapped[int] = mapped_column(ForeignKey("contracts.id"))
+    contract_id: Mapped[int] = mapped_column(ForeignKey("contracts.id"))
     contract: Mapped["Contract"] = relationship(back_populates="events")

@@ -3,12 +3,12 @@
 Ce module gère le hachage de mots de passe avec Argon2, la création et décodage
 de tokens JWT, ainsi que le système de permissions basé sur les rôles.
 """
+
 import os
 from datetime import datetime, timedelta, UTC
 
 from argon2 import PasswordHasher
 import jwt
-from sqlalchemy.orm import Session
 
 from app.models import User
 
@@ -26,11 +26,7 @@ def create_token(user_id, role):
     Returns:
         Token JWT encodé avec expiration de 24h
     """
-    payload = {
-        "user_id" : user_id,
-        "role": role,
-        "exp" : datetime.now(UTC) + timedelta(hours=24)
-        }
+    payload = {"user_id": user_id, "role": role, "exp": datetime.now(UTC) + timedelta(hours=24)}
     return jwt.encode(payload, SECRET_KEY, algorithm="HS256")
 
 
@@ -94,7 +90,7 @@ def verify_password(hashed_password, plain_password):
     try:
         ph.verify(hashed_password, plain_password)
         return True
-    except:
+    except Exception:
         return False
 
 
@@ -139,8 +135,8 @@ def get_current_user(db):
     if token is None:
         return None
 
-    try :
-        payload =  decode_token(token)
+    try:
+        payload = decode_token(token)
     except jwt.ExpiredSignatureError:
         return None
     except jwt.InvalidTokenError:
@@ -170,6 +166,7 @@ def require_role(*allowed_roles):
         def create_client(db, current_user, ...):
             pass
     """
+
     def decorator(func):
         def wrapper(db, current_user, *args, **kwargs):
             if hasattr(current_user, 'is_superuser') and current_user.is_superuser:
@@ -178,5 +175,7 @@ def require_role(*allowed_roles):
             if current_user.role.name not in allowed_roles:
                 raise PermissionError(f"L'utilisateur ne dispose pas du bon rôle pour cette action")
             return func(db, current_user, *args, **kwargs)
+
         return wrapper
+
     return decorator
