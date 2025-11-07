@@ -123,8 +123,7 @@ class TestListClients:
 
     def test_sales_sees_only_their_clients(self, db_session, all_users):
         """Test : un commercial ne voit que SES clients."""
-        from app.models import User
-
+        
         user_sales1 = all_users["sales"]
         user_sales2 = User(
             name="Sales 2",
@@ -187,8 +186,7 @@ class TestUpdateClient:
 
     def test_sales_cannot_update_other_clients(self, db_session, all_users):
         """Test : un commercial NE PEUT PAS modifier les clients d'un autre."""
-        from app.models import User
-
+        
         user_sales1 = all_users["sales"]
         user_sales2 = User(
             name="Sales 2",

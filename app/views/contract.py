@@ -92,8 +92,14 @@ def create():
 
 
 @contract.command()
-def list():
+@click.option('--unsigned', is_flag=True, help='Afficher uniquement les contrats non signés')
+@click.option('--unpaid', is_flag=True, help='Afficher uniquement les contrats non entièrement payés')
+def list(unsigned, unpaid):
     """Lister les contrats.
+
+    Args:
+        unsigned (bool): Si True, filtre les contrats non signés.
+        unpaid (bool): Si True, filtre les contrats avec montant restant > 0.
 
     Returns:
         None: Affiche les contrats dans un tableau Rich.
@@ -108,6 +114,13 @@ def list():
             return
         else:
             contracts = list_contracts(db, user)
+
+            # Appliquer les filtres si demandés
+            if unsigned:
+                contracts = [c for c in contracts if c.status != "signed"]
+            if unpaid:
+                contracts = [c for c in contracts if c.remaining_amount > 0]
+
             if not contracts:
                 console.print("\n[yellow]╭───────────────────────────────────────╮[/yellow]")
                 console.print("[yellow]│ Aucun contrat à afficher               │[/yellow]")

@@ -11,7 +11,7 @@ import pytest
 import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from app.models import Base, Role, User, Client, Contract, Event
+from app.models import Base, Role, User, Client, Contract
 from app.auth import hash_password
 
 TEST_DATABASE_URL = "sqlite:///:memory:"
@@ -176,11 +176,11 @@ def all_users(db_session, all_roles):
     db_session.add_all([user_sales, user_support, user_gestion])
     db_session.commit()
 
-    
+
     db_session.refresh(user_sales)
     db_session.refresh(user_support)
     db_session.refresh(user_gestion)
-    _ = user_sales.role  
+    _ = user_sales.role
     _ = user_support.role
     _ = user_gestion.role
 

@@ -20,7 +20,6 @@ from app.managers.event import (
 )
 from app.managers.contract import create_contract, update_contract
 from app.managers.client import create_client
-from app.models import Event
 
 
 class TestCreateEvent:
@@ -31,17 +30,17 @@ class TestCreateEvent:
         user_sales = all_users["sales"]
         user_gestion = all_users["gestion"]
 
-        
+
         client = create_client(db_session, user_sales, "Client", "+111", "Corp", "event1@test.com")
 
-        
+
         contract = create_contract(db_session, user_gestion, "pending", Decimal("1000"), Decimal("500"), client.id)
 
-        
+
         update_contract(db_session, user_gestion, contract.id, status="signed")
         db_session.refresh(contract)
 
-        
+
         event = create_event(
             db=db_session,
             current_user=user_sales,
@@ -62,13 +61,13 @@ class TestCreateEvent:
         user_sales = all_users["sales"]
         user_gestion = all_users["gestion"]
 
-        
+
         client = create_client(db_session, user_sales, "Client", "+111", "Corp", "event2@test.com")
 
-        
+
         contract = create_contract(db_session, user_gestion, "pending", Decimal("1000"), Decimal("500"), client.id)
 
-        
+
         with pytest.raises(ValueError) as exc_info:
             create_event(
                 db=db_session,
@@ -84,12 +83,11 @@ class TestCreateEvent:
 
     def test_sales_cannot_create_event_for_other_clients(self, db_session, all_users):
         """Test : un commercial NE PEUT PAS créer d'événement pour les clients d'un autre."""
-        from app.models import User
-
+        
         user_sales1 = all_users["sales"]
         user_gestion = all_users["gestion"]
 
-        
+
         user_sales2 = User(
             name="Sales 2",
             email="sales2@test.com",
@@ -100,15 +98,15 @@ class TestCreateEvent:
         db_session.add(user_sales2)
         db_session.commit()
 
-        
+
         client = create_client(db_session, user_sales1, "Client", "+111", "Corp", "event3@test.com")
 
-        
+
         contract = create_contract(db_session, user_gestion, "pending", Decimal("1000"), Decimal("500"), client.id)
         update_contract(db_session, user_gestion, contract.id, status="signed")
         db_session.refresh(contract)
 
-        
+
         with pytest.raises(PermissionError):
             create_event(
                 db=db_session,
@@ -126,12 +124,12 @@ class TestCreateEvent:
         user_support = all_users["support"]
         user_gestion = all_users["gestion"]
 
-        
+
         client = create_client(db_session, user_sales, "Client", "+111", "Corp", "event4@test.com")
         contract = create_contract(db_session, user_gestion, "pending", Decimal("1000"), Decimal("500"), client.id)
         update_contract(db_session, user_gestion, contract.id, status="signed")
 
-        
+
         with pytest.raises(PermissionError):
             create_event(
                 db=db_session,
@@ -167,7 +165,7 @@ class TestGetEvent:
         user_sales = all_users["sales"]
         user_gestion = all_users["gestion"]
 
-        
+
         client = create_client(db_session, user_sales, "Client", "+111", "Corp", "event5@test.com")
         contract = create_contract(db_session, user_gestion, "pending", Decimal("1000"), Decimal("500"), client.id)
         update_contract(db_session, user_gestion, contract.id, status="signed")
@@ -177,7 +175,7 @@ class TestGetEvent:
             db_session, user_sales, datetime(2025, 6, 1, 14, 0), datetime(2025, 6, 1, 18, 0), "Paris", 100, contract.id
         )
 
-        
+
         retrieved = get_event(db_session, event.id)
 
         assert retrieved is not None
@@ -198,7 +196,7 @@ class TestListEvents:
         user_sales = all_users["sales"]
         user_gestion = all_users["gestion"]
 
-        
+
         client = create_client(db_session, user_sales, "Client", "+111", "Corp", "event6@test.com")
         contract = create_contract(db_session, user_gestion, "pending", Decimal("1000"), Decimal("500"), client.id)
         update_contract(db_session, user_gestion, contract.id, status="signed")
@@ -211,7 +209,7 @@ class TestListEvents:
             db_session, user_sales, datetime(2025, 7, 1, 14, 0), datetime(2025, 7, 1, 18, 0), "Lyon", 50, contract.id
         )
 
-        
+
         events = list_events(db_session, user_gestion)
         assert len(events) == 2
 
@@ -221,7 +219,7 @@ class TestListEvents:
         user_support = all_users["support"]
         user_gestion = all_users["gestion"]
 
-        
+
         client = create_client(db_session, user_sales, "Client", "+111", "Corp", "event7@test.com")
         contract = create_contract(db_session, user_gestion, "pending", Decimal("1000"), Decimal("500"), client.id)
         update_contract(db_session, user_gestion, contract.id, status="signed")
@@ -234,22 +232,21 @@ class TestListEvents:
             db_session, user_sales, datetime(2025, 7, 1, 14, 0), datetime(2025, 7, 1, 18, 0), "Lyon", 50, contract.id
         )
 
-        
+
         update_event(db_session, user_gestion, event1.id, support_contact_id=user_support.id)
 
-        
+
         events = list_events(db_session, user_support)
         assert len(events) == 1
         assert events[0].id == event1.id
 
     def test_sales_sees_events_of_their_clients(self, db_session, all_users):
         """Test : un commercial voit les événements de SES clients."""
-        from app.models import User
-
+        
         user_sales1 = all_users["sales"]
         user_gestion = all_users["gestion"]
 
-        
+
         user_sales2 = User(
             name="Sales 2",
             email="sales2@test.com",
@@ -260,7 +257,7 @@ class TestListEvents:
         db_session.add(user_sales2)
         db_session.commit()
 
-       
+
         client1 = create_client(db_session, user_sales1, "Client 1", "+111", "Corp 1", "event8a@test.com")
         contract1 = create_contract(db_session, user_gestion, "pending", Decimal("1000"), Decimal("500"), client1.id)
         update_contract(db_session, user_gestion, contract1.id, status="signed")
@@ -275,7 +272,7 @@ class TestListEvents:
             contract1.id,
         )
 
-       
+
         client2 = create_client(db_session, user_sales2, "Client 2", "+222", "Corp 2", "event8b@test.com")
         contract2 = create_contract(db_session, user_gestion, "pending", Decimal("2000"), Decimal("1000"), client2.id)
         update_contract(db_session, user_gestion, contract2.id, status="signed")
@@ -284,7 +281,7 @@ class TestListEvents:
             db_session, user_sales2, datetime(2025, 7, 1, 14, 0), datetime(2025, 7, 1, 18, 0), "Lyon", 50, contract2.id
         )
 
-        
+
         events = list_events(db_session, user_sales1)
         assert len(events) == 1
         assert events[0].id == event1.id
@@ -299,7 +296,7 @@ class TestUpdateEvent:
         user_support = all_users["support"]
         user_gestion = all_users["gestion"]
 
-       
+
         client = create_client(db_session, user_sales, "Client", "+111", "Corp", "event9@test.com")
         contract = create_contract(db_session, user_gestion, "pending", Decimal("1000"), Decimal("500"), client.id)
         update_contract(db_session, user_gestion, contract.id, status="signed")
@@ -308,7 +305,7 @@ class TestUpdateEvent:
             db_session, user_sales, datetime(2025, 6, 1, 14, 0), datetime(2025, 6, 1, 18, 0), "Paris", 100, contract.id
         )
 
-        
+
         updated = update_event(
             db=db_session,
             current_user=user_gestion,
@@ -326,7 +323,7 @@ class TestUpdateEvent:
         user_support = all_users["support"]
         user_gestion = all_users["gestion"]
 
-        
+
         client = create_client(db_session, user_sales, "Client", "+111", "Corp", "event10@test.com")
         contract = create_contract(db_session, user_gestion, "pending", Decimal("1000"), Decimal("500"), client.id)
         update_contract(db_session, user_gestion, contract.id, status="signed")
@@ -337,20 +334,19 @@ class TestUpdateEvent:
         update_event(db_session, user_gestion, event.id, support_contact_id=user_support.id)
         db_session.refresh(event)
 
-        
+
         updated = update_event(db=db_session, current_user=user_support, event_id=event.id, notes="Updated by support")
 
         assert updated.notes == "Updated by support"
 
     def test_support_cannot_update_other_events(self, db_session, all_users):
         """Test : le support NE PEUT PAS modifier les événements d'autres supports."""
-        from app.models import User
-
+        
         user_sales = all_users["sales"]
         user_support1 = all_users["support"]
         user_gestion = all_users["gestion"]
 
-       
+
         user_support2 = User(
             name="Support 2",
             email="support2@test.com",
@@ -361,7 +357,7 @@ class TestUpdateEvent:
         db_session.add(user_support2)
         db_session.commit()
 
-        
+
         client = create_client(db_session, user_sales, "Client", "+111", "Corp", "event11@test.com")
         contract = create_contract(db_session, user_gestion, "pending", Decimal("1000"), Decimal("500"), client.id)
         update_contract(db_session, user_gestion, contract.id, status="signed")
@@ -372,7 +368,7 @@ class TestUpdateEvent:
         update_event(db_session, user_gestion, event.id, support_contact_id=user_support1.id)
         db_session.refresh(event)
 
-        
+
         with pytest.raises(PermissionError):
             update_event(db=db_session, current_user=user_support2, event_id=event.id, notes="Unauthorized")
 
@@ -381,7 +377,7 @@ class TestUpdateEvent:
         user_sales = all_users["sales"]
         user_gestion = all_users["gestion"]
 
-        
+
         client = create_client(db_session, user_sales, "Client", "+111", "Corp", "event12@test.com")
         contract = create_contract(db_session, user_gestion, "pending", Decimal("1000"), Decimal("500"), client.id)
         update_contract(db_session, user_gestion, contract.id, status="signed")
@@ -390,7 +386,7 @@ class TestUpdateEvent:
             db_session, user_sales, datetime(2025, 6, 1, 14, 0), datetime(2025, 6, 1, 18, 0), "Paris", 100, contract.id
         )
 
-        
+
         with pytest.raises(PermissionError):
             update_event(db=db_session, current_user=user_sales, event_id=event.id, location="Lyon")
 
@@ -411,7 +407,7 @@ class TestAssignSupport:
         user_support = all_users["support"]
         user_gestion = all_users["gestion"]
 
-        
+
         client = create_client(db_session, user_sales, "Client", "+111", "Corp", "event13@test.com")
         contract = create_contract(db_session, user_gestion, "pending", Decimal("1000"), Decimal("500"), client.id)
         update_contract(db_session, user_gestion, contract.id, status="signed")
@@ -420,7 +416,7 @@ class TestAssignSupport:
             db_session, user_sales, datetime(2025, 6, 1, 14, 0), datetime(2025, 6, 1, 18, 0), "Paris", 100, contract.id
         )
 
-        
+
         updated = assign_support(db_session, user_gestion, event.id, user_support.id)
 
         assert updated.support_contact_id == user_support.id
@@ -437,7 +433,7 @@ class TestAssignSupport:
         user_sales = all_users["sales"]
         user_gestion = all_users["gestion"]
 
-        
+
         client = create_client(db_session, user_sales, "Client", "+111", "Corp", "event14@test.com")
         contract = create_contract(db_session, user_gestion, "pending", Decimal("1000"), Decimal("500"), client.id)
         update_contract(db_session, user_gestion, contract.id, status="signed")
@@ -446,7 +442,7 @@ class TestAssignSupport:
             db_session, user_sales, datetime(2025, 6, 1, 14, 0), datetime(2025, 6, 1, 18, 0), "Paris", 100, contract.id
         )
 
-        
+
         with pytest.raises(ValueError) as exc_info:
             assign_support(db_session, user_gestion, event.id, 99999)
 
@@ -457,7 +453,7 @@ class TestAssignSupport:
         user_sales = all_users["sales"]
         user_gestion = all_users["gestion"]
 
-        
+
         client = create_client(db_session, user_sales, "Client", "+111", "Corp", "event15@test.com")
         contract = create_contract(db_session, user_gestion, "pending", Decimal("1000"), Decimal("500"), client.id)
         update_contract(db_session, user_gestion, contract.id, status="signed")
@@ -466,7 +462,7 @@ class TestAssignSupport:
             db_session, user_sales, datetime(2025, 6, 1, 14, 0), datetime(2025, 6, 1, 18, 0), "Paris", 100, contract.id
         )
 
-        
+
         with pytest.raises(ValueError) as exc_info:
             assign_support(db_session, user_gestion, event.id, user_sales.id)
 
@@ -478,7 +474,7 @@ class TestAssignSupport:
         user_support = all_users["support"]
         user_gestion = all_users["gestion"]
 
-        
+
         client = create_client(db_session, user_sales, "Client", "+111", "Corp", "event16@test.com")
         contract = create_contract(db_session, user_gestion, "pending", Decimal("1000"), Decimal("500"), client.id)
         update_contract(db_session, user_gestion, contract.id, status="signed")
@@ -487,7 +483,7 @@ class TestAssignSupport:
             db_session, user_sales, datetime(2025, 6, 1, 14, 0), datetime(2025, 6, 1, 18, 0), "Paris", 100, contract.id
         )
 
-        
+
         with pytest.raises(PermissionError):
             assign_support(db_session, user_sales, event.id, user_support.id)
 
@@ -497,7 +493,7 @@ class TestAssignSupport:
         user_support = all_users["support"]
         user_gestion = all_users["gestion"]
 
-        
+
         client = create_client(db_session, user_sales, "Client", "+111", "Corp", "event17@test.com")
         contract = create_contract(db_session, user_gestion, "pending", Decimal("1000"), Decimal("500"), client.id)
         update_contract(db_session, user_gestion, contract.id, status="signed")
@@ -506,6 +502,6 @@ class TestAssignSupport:
             db_session, user_sales, datetime(2025, 6, 1, 14, 0), datetime(2025, 6, 1, 18, 0), "Paris", 100, contract.id
         )
 
-        
+
         with pytest.raises(PermissionError):
             assign_support(db_session, user_support, event.id, user_support.id)

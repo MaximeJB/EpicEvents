@@ -3,7 +3,6 @@
 import sentry_sdk
 
 from app.auth import hash_password, require_role
-from app.models import User
 
 
 @require_role("gestion")

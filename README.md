@@ -30,7 +30,9 @@ L'application implémente un système de permissions basé sur les rôles (RBAC)
 
 ### Gestion des Contrats
 - Créer des contrats (Gestion uniquement)
-- Lister et filtrer les contrats (signés/non signés, payés/non payés)
+- Lister et filtrer les contrats :
+  - `--unsigned` : contrats non signés
+  - `--unpaid` : contrats non entièrement payés
 - Modifier les contrats (Sales pour leurs clients, Gestion pour tous)
 - Signature de contrats avec notification Sentry
 
@@ -38,7 +40,9 @@ L'application implémente un système de permissions basé sur les rôles (RBAC)
 - Créer des événements pour contrats signés (Sales)
 - Assigner un support à un événement (Gestion)
 - Modifier les événements (Support pour les leurs, Gestion pour tous)
-- Filtrer les événements sans support assigné
+- Filtrer les événements :
+  - `--no-support` : événements sans support assigné (Gestion)
+  - `--mine` : événements qui me sont assignés (Support)
 
 ### Gestion des Collaborateurs
 - Créer des utilisateurs (Gestion uniquement)

@@ -11,7 +11,6 @@ Ces tests couvrent :
 
 import pytest
 from app.managers.user import create_user, get_user, get_user_by_id, list_users, update_user, delete_user
-from app.models import User
 from app.auth import verify_password
 
 
@@ -62,7 +61,7 @@ class TestCreateUser:
             role_id=role_sales.id,
         )
 
-        
+
         db_user = db_session.query(User).filter(User.email == "stored@test.com").first()
         assert db_user is not None
         assert db_user.id == user.id
@@ -79,7 +78,7 @@ class TestCreateUser:
             role_id=role_sales.id,
         )
 
-        
+
         assert user.id is not None
         assert isinstance(user.id, int)
 
@@ -93,7 +92,7 @@ class TestUserCRUDIntegration:
         user2 = create_user(db_session, user_gestion, "user2@test.com", "pass2", "User 2", "sales", role_sales.id)
         user3 = create_user(db_session, user_gestion, "user3@test.com", "pass3", "User 3", "sales", role_sales.id)
 
-        
+
         assert user1 is not None
         assert user2 is not None
         assert user3 is not None
@@ -149,7 +148,7 @@ class TestListUsers:
         user_gestion = all_users["gestion"]
         users = list_users(db_session, user_gestion)
 
-        
+
         assert len(users) == 3
         assert any(u.email == "sales@test.com" for u in users)
         assert any(u.email == "support@test.com" for u in users)
@@ -214,7 +213,7 @@ class TestDeleteUser:
 
     def test_gestion_can_delete_user(self, db_session, user_gestion, role_sales):
         """Test : la gestion peut supprimer un utilisateur."""
-        
+
         user_to_delete = create_user(
             db=db_session,
             current_user=user_gestion,
@@ -227,11 +226,11 @@ class TestDeleteUser:
 
         user_id = user_to_delete.id
 
-        
+
         result = delete_user(db_session, user_gestion, user_id)
         assert result is True
 
-        
+
         deleted = get_user_by_id(db_session, user_id)
         assert deleted is None
 

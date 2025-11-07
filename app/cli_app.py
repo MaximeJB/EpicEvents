@@ -170,13 +170,13 @@ def action_whoami():
         console.print("[red]│ ✗ Vous n'êtes pas connecté            │[/red]")
         console.print("[red]╰───────────────────────────────────────╯[/red]\n")
     else:
-        console.print(f"\n[cyan]📋 Profil utilisateur[/cyan]")
+        console.print("\n[cyan]📋 Profil utilisateur[/cyan]")
         console.print(f"  • Nom : {user.name}")
         console.print(f"  • Email : {user.email}")
         console.print(f"  • Département : {user.department}")
         console.print(f"  • Rôle : {user.role.name}")
         if hasattr(user, 'is_superuser') and user.is_superuser:
-            console.print(f"  • [bold yellow]⭐ SUPERUSER[/bold yellow]")
+            console.print("  • [bold yellow]⭐ SUPERUSER[/bold yellow]")
         console.print()
 
     input("Appuyez sur Entrée pour continuer...")
@@ -236,15 +236,15 @@ def action_create_client():
         user = get_current_user(db)
         client = create_client(db, user, name, phone, company, email)
 
-        console.print(f"\n[green]╭───────────────────────────────────────╮[/green]")
+        console.print("\n[green]╭───────────────────────────────────────╮[/green]")
         console.print(
             f"[green]│ ✓ Client créé : {client.name} (ID: {client.id}){' ' * (38 - len(f'✓ Client créé : {client.name} (ID: {client.id})'))}│[/green]"
         )
-        console.print(f"[green]╰───────────────────────────────────────╯[/green]\n")
-    except PermissionError as e:
-        console.print(f"\n[red]╭───────────────────────────────────────╮[/red]")
-        console.print(f"[red]│ ✗ Permission refusée{' ' * (38 - len('✗ Permission refusée'))}│[/red]")
-        console.print(f"[red]╰───────────────────────────────────────╯[/red]\n")
+        console.print("[green]╰───────────────────────────────────────╯[/green]\n")
+    except PermissionError:
+        console.print("\n[red]╭───────────────────────────────────────╮[/red]")
+        console.print("[red]│ ✗ Permission refusée{' ' * (38 - len('✗ Permission refusée'))}│[/red]")
+        console.print("[red]╰───────────────────────────────────────╯[/red]\n")
     except Exception as e:
         console.print(f"\n[red]✗ Erreur : {e}[/red]\n")
     finally:
@@ -322,15 +322,15 @@ def action_update_client():
         else:
             user = get_current_user(db)
             updated = update_client(db, user, client_id, **kwargs)
-            console.print(f"\n[green]╭───────────────────────────────────────╮[/green]")
+            console.print("\n[green]╭───────────────────────────────────────╮[/green]")
             console.print(
                 f"[green]│ ✓ Client {updated.name} mis à jour{' ' * (38 - len(f'✓ Client {updated.name} mis à jour'))}│[/green]"
             )
-            console.print(f"[green]╰───────────────────────────────────────╯[/green]\n")
+            console.print("[green]╰───────────────────────────────────────╯[/green]\n")
     except PermissionError:
-        console.print(f"\n[red]╭───────────────────────────────────────╮[/red]")
+        console.print("\n[red]╭───────────────────────────────────────╮[/red]")
         console.print(f"[red]│ ✗ Permission refusée{' ' * (38 - len('✗ Permission refusée'))}│[/red]")
-        console.print(f"[red]╰───────────────────────────────────────╯[/red]\n")
+        console.print("[red]╰───────────────────────────────────────╯[/red]\n")
     except Exception as e:
         console.print(f"\n[red]✗ Erreur : {e}[/red]\n")
     finally:
@@ -380,17 +380,17 @@ def action_create_contract():
         user = get_current_user(db)
         contract = create_contract(db, user, "pending", Decimal(total_amount), Decimal(remaining_amount), client_id)
 
-        console.print(f"\n[green]╭───────────────────────────────────────╮[/green]")
+        console.print("\n[green]╭───────────────────────────────────────╮[/green]")
         console.print(
             f"[green]│ ✓ Contrat créé (ID: {contract.id}){' ' * (38 - len(f'✓ Contrat créé (ID: {contract.id})'))}│[/green]"
         )
-        console.print(f"[green]╰───────────────────────────────────────╯[/green]\n")
+        console.print("[green]╰───────────────────────────────────────╯[/green]\n")
     except PermissionError:
-        console.print(f"\n[red]╭───────────────────────────────────────╮[/red]")
+        console.print("\n[red]╭───────────────────────────────────────╮[/red]")
         console.print(
             f"[red]│ ✗ Permission refusée (gestion seul){' ' * (38 - len('✗ Permission refusée (gestion seul)'))}│[/red]"
         )
-        console.print(f"[red]╰───────────────────────────────────────╯[/red]\n")
+        console.print("[red]╰───────────────────────────────────────╯[/red]\n")
     except ValueError as e:
         console.print(f"\n[red]✗ Erreur : {e}[/red]\n")
     finally:
@@ -478,15 +478,15 @@ def action_update_contract():
         else:
             user = get_current_user(db)
             updated = update_contract(db, user, contract_id, **kwargs)
-            console.print(f"\n[green]╭───────────────────────────────────────╮[/green]")
+            console.print("\n[green]╭───────────────────────────────────────╮[/green]")
             console.print(
                 f"[green]│ ✓ Contrat {updated.id} mis à jour{' ' * (38 - len(f'✓ Contrat {updated.id} mis à jour'))}│[/green]"
             )
-            console.print(f"[green]╰───────────────────────────────────────╯[/green]\n")
+            console.print("[green]╰───────────────────────────────────────╯[/green]\n")
     except PermissionError:
-        console.print(f"\n[red]╭───────────────────────────────────────╮[/red]")
+        console.print("\n[red]╭───────────────────────────────────────╮[/red]")
         console.print(f"[red]│ ✗ Permission refusée{' ' * (38 - len('✗ Permission refusée'))}│[/red]")
-        console.print(f"[red]╰───────────────────────────────────────╯[/red]\n")
+        console.print("[red]╰───────────────────────────────────────╯[/red]\n")
     except Exception as e:
         console.print(f"\n[red]✗ Erreur : {e}[/red]\n")
     finally:
@@ -511,21 +511,21 @@ def action_sign_contract():
             return
 
         if contract.status == "signed":
-            console.print(f"\n[yellow]⚠ Ce contrat est déjà signé[/yellow]\n")
+            console.print("\n[yellow]⚠ Ce contrat est déjà signé[/yellow]\n")
             input("Appuyez sur Entrée pour continuer...")
             return
 
         user = get_current_user(db)
         updated = update_contract(db, user, contract_id, status="signed")
-        console.print(f"\n[green]╭───────────────────────────────────────╮[/green]")
+        console.print("\n[green]╭───────────────────────────────────────╮[/green]")
         console.print(
             f"[green]│ ✓ Contrat {updated.id} signé avec succès{' ' * (38 - len(f'✓ Contrat {updated.id} signé avec succès'))}│[/green]"
         )
-        console.print(f"[green]╰───────────────────────────────────────╯[/green]\n")
+        console.print("[green]╰───────────────────────────────────────╯[/green]\n")
     except PermissionError:
-        console.print(f"\n[red]╭───────────────────────────────────────╮[/red]")
+        console.print("\n[red]╭───────────────────────────────────────╮[/red]")
         console.print(f"[red]│ ✗ Permission refusée{' ' * (38 - len('✗ Permission refusée'))}│[/red]")
-        console.print(f"[red]╰───────────────────────────────────────╯[/red]\n")
+        console.print("[red]╰───────────────────────────────────────╯[/red]\n")
     except Exception as e:
         console.print(f"\n[red]✗ Erreur : {e}[/red]\n")
     finally:
@@ -589,22 +589,22 @@ def action_create_event():
             else:
                 end_date = datetime.strptime(end_date_str, "%d/%m/%Y")
         except ValueError:
-            console.print(f"\n[red]✗ Format de date invalide[/red]\n")
+            console.print("\n[red]✗ Format de date invalide[/red]\n")
             input("Appuyez sur Entrée pour continuer...")
             return
 
         user = get_current_user(db)
         event = create_event(db, user, start_date, end_date, location, attendees, contract_id, notes)
 
-        console.print(f"\n[green]╭───────────────────────────────────────╮[/green]")
+        console.print("\n[green]╭───────────────────────────────────────╮[/green]")
         console.print(
             f"[green]│ ✓ Événement créé (ID: {event.id}){' ' * (38 - len(f'✓ Événement créé (ID: {event.id})'))}│[/green]"
         )
-        console.print(f"[green]╰───────────────────────────────────────╯[/green]\n")
-    except PermissionError as e:
-        console.print(f"\n[red]╭───────────────────────────────────────╮[/red]")
+        console.print("[green]╰───────────────────────────────────────╯[/green]\n")
+    except PermissionError:
+        console.print("\n[red]╭───────────────────────────────────────╮[/red]")
         console.print(f"[red]│ ✗ Permission refusée{' ' * (38 - len('✗ Permission refusée'))}│[/red]")
-        console.print(f"[red]╰───────────────────────────────────────╯[/red]\n")
+        console.print("[red]╰───────────────────────────────────────╯[/red]\n")
     except ValueError as e:
         console.print(f"\n[red]✗ Erreur : {e}[/red]\n")
     finally:
@@ -690,15 +690,15 @@ def action_update_event():
         else:
             user = get_current_user(db)
             updated = update_event(db, user, event_id, **kwargs)
-            console.print(f"\n[green]╭───────────────────────────────────────╮[/green]")
+            console.print("\n[green]╭───────────────────────────────────────╮[/green]")
             console.print(
                 f"[green]│ ✓ Événement {updated.id} mis à jour{' ' * (38 - len(f'✓ Événement {updated.id} mis à jour'))}│[/green]"
             )
-            console.print(f"[green]╰───────────────────────────────────────╯[/green]\n")
+            console.print("[green]╰───────────────────────────────────────╯[/green]\n")
     except PermissionError:
-        console.print(f"\n[red]╭───────────────────────────────────────╮[/red]")
+        console.print("\n[red]╭───────────────────────────────────────╮[/red]")
         console.print(f"[red]│ ✗ Permission refusée{' ' * (38 - len('✗ Permission refusée'))}│[/red]")
-        console.print(f"[red]╰───────────────────────────────────────╯[/red]\n")
+        console.print("[red]╰───────────────────────────────────────╯[/red]\n")
     except Exception as e:
         console.print(f"\n[red]✗ Erreur : {e}[/red]\n")
     finally:
@@ -718,18 +718,18 @@ def action_assign_support():
     db = SessionLocal()
     try:
         user = get_current_user(db)
-        updated = update_event(db, user, event_id, support_contact_id=support_id)
-        console.print(f"\n[green]╭───────────────────────────────────────╮[/green]")
+        update_event(db, user, event_id, support_contact_id=support_id)
+        console.print("\n[green]╭───────────────────────────────────────╮[/green]")
         console.print(
             f"[green]│ ✓ Support assigné à l'événement{' ' * (38 - len('✓ Support assigné à l\'événement'))}│[/green]"
         )
-        console.print(f"[green]╰───────────────────────────────────────╯[/green]\n")
+        console.print("[green]╰───────────────────────────────────────╯[/green]\n")
     except PermissionError:
-        console.print(f"\n[red]╭───────────────────────────────────────╮[/red]")
+        console.print("\n[red]╭───────────────────────────────────────╮[/red]")
         console.print(
             f"[red]│ ✗ Permission refusée (gestion seul){' ' * (38 - len('✗ Permission refusée (gestion seul)'))}│[/red]"
         )
-        console.print(f"[red]╰───────────────────────────────────────╯[/red]\n")
+        console.print("[red]╰───────────────────────────────────────╯[/red]\n")
     except Exception as e:
         console.print(f"\n[red]✗ Erreur : {e}[/red]\n")
     finally:
@@ -777,9 +777,9 @@ def action_create_user():
     role_name = Prompt.ask("Rôle (sales/support/gestion)")
 
     if role_name not in ["sales", "support", "gestion"]:
-        console.print(f"\n[red]╭───────────────────────────────────────╮[/red]")
+        console.print("\n[red]╭───────────────────────────────────────╮[/red]")
         console.print(f"[red]│ ✗ Rôle invalide{' ' * (38 - len('✗ Rôle invalide'))}│[/red]")
-        console.print(f"[red]╰───────────────────────────────────────╯[/red]\n")
+        console.print("[red]╰───────────────────────────────────────╯[/red]\n")
         input("Appuyez sur Entrée pour continuer...")
         return
 
@@ -794,17 +794,17 @@ def action_create_user():
         user = get_current_user(db)
         new_user = create_user(db, user, email, password, name, department, role.id)
 
-        console.print(f"\n[green]╭───────────────────────────────────────╮[/green]")
+        console.print("\n[green]╭───────────────────────────────────────╮[/green]")
         console.print(
             f"[green]│ ✓ Collaborateur créé : {new_user.name}{' ' * (38 - len(f'✓ Collaborateur créé : {new_user.name}'))}│[/green]"
         )
-        console.print(f"[green]╰───────────────────────────────────────╯[/green]\n")
+        console.print("[green]╰───────────────────────────────────────╯[/green]\n")
     except PermissionError:
-        console.print(f"\n[red]╭───────────────────────────────────────╮[/red]")
+        console.print("\n[red]╭───────────────────────────────────────╮[/red]")
         console.print(
             f"[red]│ ✗ Permission refusée (gestion seul){' ' * (38 - len('✗ Permission refusée (gestion seul)'))}│[/red]"
         )
-        console.print(f"[red]╰───────────────────────────────────────╯[/red]\n")
+        console.print("[red]╰───────────────────────────────────────╯[/red]\n")
     except Exception as e:
         console.print(f"\n[red]✗ Erreur : {e}[/red]\n")
     finally:
@@ -837,11 +837,11 @@ def action_list_users():
         console.print(table)
         console.print(f"\n[dim]Total : {len(users)} collaborateur(s)[/dim]\n")
     except PermissionError:
-        console.print(f"\n[red]╭───────────────────────────────────────╮[/red]")
+        console.print("\n[red]╭───────────────────────────────────────╮[/red]")
         console.print(
             f"[red]│ ✗ Permission refusée (gestion seul){' ' * (38 - len('✗ Permission refusée (gestion seul)'))}│[/red]"
         )
-        console.print(f"[red]╰───────────────────────────────────────╯[/red]\n")
+        console.print("[red]╰───────────────────────────────────────╯[/red]\n")
     finally:
         db.close()
 
@@ -877,7 +877,7 @@ def action_update_user():
             kwargs["department"] = new_department
         if new_role:
             if new_role not in ["sales", "support", "gestion"]:
-                console.print(f"\n[red]✗ Rôle invalide[/red]\n")
+                console.print("\n[red]✗ Rôle invalide[/red]\n")
                 input("Appuyez sur Entrée pour continuer...")
                 return
             role = db.query(Role).filter(Role.name == new_role).first()
@@ -889,17 +889,17 @@ def action_update_user():
         else:
             user = get_current_user(db)
             updated = update_user(db, user, user_id, **kwargs)
-            console.print(f"\n[green]╭───────────────────────────────────────╮[/green]")
+            console.print("\n[green]╭───────────────────────────────────────╮[/green]")
             console.print(
                 f"[green]│ ✓ Collaborateur {updated.name} mis à jour{' ' * (38 - len(f'✓ Collaborateur {updated.name} mis à jour'))}│[/green]"
             )
-            console.print(f"[green]╰───────────────────────────────────────╯[/green]\n")
+            console.print("[green]╰───────────────────────────────────────╯[/green]\n")
     except PermissionError:
-        console.print(f"\n[red]╭───────────────────────────────────────╮[/red]")
+        console.print("\n[red]╭───────────────────────────────────────╮[/red]")
         console.print(
             f"[red]│ ✗ Permission refusée (gestion seul){' ' * (38 - len('✗ Permission refusée (gestion seul)'))}│[/red]"
         )
-        console.print(f"[red]╰───────────────────────────────────────╯[/red]\n")
+        console.print("[red]╰───────────────────────────────────────╯[/red]\n")
     except Exception as e:
         console.print(f"\n[red]✗ Erreur : {e}[/red]\n")
     finally:
@@ -933,15 +933,15 @@ def action_delete_user():
         else:
             user = get_current_user(db)
             delete_user(db, user, user_id)
-            console.print(f"\n[green]╭───────────────────────────────────────╮[/green]")
+            console.print("\n[green]╭───────────────────────────────────────╮[/green]")
             console.print(f"[green]│ ✓ Collaborateur supprimé{' ' * (38 - len('✓ Collaborateur supprimé'))}│[/green]")
-            console.print(f"[green]╰───────────────────────────────────────╯[/green]\n")
+            console.print("[green]╰───────────────────────────────────────╯[/green]\n")
     except PermissionError:
-        console.print(f"\n[red]╭───────────────────────────────────────╮[/red]")
+        console.print("\n[red]╭───────────────────────────────────────╮[/red]")
         console.print(
             f"[red]│ ✗ Permission refusée (gestion seul){' ' * (38 - len('✗ Permission refusée (gestion seul)'))}│[/red]"
         )
-        console.print(f"[red]╰───────────────────────────────────────╯[/red]\n")
+        console.print("[red]╰───────────────────────────────────────╯[/red]\n")
     except Exception as e:
         console.print(f"\n[red]✗ Erreur : {e}[/red]\n")
     finally:
@@ -960,12 +960,12 @@ def menu_principal():
         user = get_logged_user()
         if user:
             status_text = (
-                f"[bold green]✓ CONNECTÉ[/bold green]\n\n"
+                "[bold green]✓ CONNECTÉ[/bold green]\n\n"
                 f"[white]Utilisateur : [/white][cyan]{user.name}[/cyan]\n"
                 f"[white]Rôle : [/white][yellow]{user.role.name.upper()}[/yellow]"
             )
             if hasattr(user, 'is_superuser') and user.is_superuser:
-                status_text += f"\n[bold yellow]⭐ SUPERUSER[/bold yellow]"
+                status_text += "\n[bold yellow]⭐ SUPERUSER[/bold yellow]"
             status_style = "green"
         else:
             status_text = "[bold yellow]⚠ NON CONNECTÉ[/bold yellow]\n\n[dim]Utilisez le menu Authentification[/dim]"

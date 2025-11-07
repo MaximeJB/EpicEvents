@@ -11,7 +11,6 @@ Ces tests couvrent :
 import pytest
 from decimal import Decimal
 from app.managers.contract import create_contract, get_contract, list_contracts, update_contract
-from app.models import Contract
 
 
 class TestCreateContract:
@@ -117,8 +116,7 @@ class TestListContracts:
         contract1 = create_contract(db_session, user_gestion, "signed", Decimal("1000"), Decimal("500"), client1.id)
         contract2 = create_contract(db_session, user_gestion, "signed", Decimal("2000"), Decimal("1000"), client2.id)
 
-        from app.models import User
-
+        
         user_sales2 = User(
             name="Sales 2",
             email="sales2@test.com",
@@ -159,7 +157,7 @@ class TestListContracts:
         user_gestion = all_users["gestion"]
         user_support = all_users["support"]
 
-        
+
         client = create_client(db_session, user_sales, "Test Client", "+111", "Test Corp", "test@corp.com")
         contract1 = create_contract(db_session, user_gestion, "signed", Decimal("1000"), Decimal("500"), client.id)
 
@@ -190,13 +188,13 @@ class TestUpdateContract:
         user_sales = all_users["sales"]
         user_gestion = all_users["gestion"]
 
-        
+
         client = create_client(db_session, user_sales, "Client", "+111", "Corp", "client@update.com")
 
-        
+
         contract = create_contract(db_session, user_gestion, "pending", Decimal("1000"), Decimal("500"), client.id)
 
-        
+
         updated = update_contract(db=db_session, current_user=user_sales, contract_id=contract.id, status="signed")
 
         assert updated.status == "signed"
@@ -204,12 +202,11 @@ class TestUpdateContract:
     def test_sales_cannot_update_other_clients_contracts(self, db_session, all_users):
         """Test : un commercial NE PEUT PAS modifier les contrats d'autres clients."""
         from app.managers.client import create_client
-        from app.models import User
-
+        
         user_sales1 = all_users["sales"]
         user_gestion = all_users["gestion"]
 
-        
+
         user_sales2 = User(
             name="Sales 2",
             email="sales2@test.com",
@@ -220,13 +217,13 @@ class TestUpdateContract:
         db_session.add(user_sales2)
         db_session.commit()
 
-        
+
         client = create_client(db_session, user_sales1, "Client", "+111", "Corp", "client@sales1.com")
 
-        
+
         contract = create_contract(db_session, user_gestion, "pending", Decimal("1000"), Decimal("500"), client.id)
 
-        
+
         with pytest.raises(PermissionError):
             update_contract(db=db_session, current_user=user_sales2, contract_id=contract.id, status="signed")
 

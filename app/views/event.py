@@ -146,8 +146,14 @@ def create():
 
 
 @event.command()
-def list():
+@click.option('--no-support', is_flag=True, help='Afficher uniquement les événements sans support assigné')
+@click.option('--mine', is_flag=True, help='Afficher uniquement les événements qui me sont assignés (support)')
+def list(no_support, mine):
     """Lister les événements.
+
+    Args:
+        no_support (bool): Si True, filtre les événements sans support assigné.
+        mine (bool): Si True, filtre les événements assignés à l'utilisateur connecté.
 
     Returns:
         None: Affiche les événements dans un tableau Rich.
@@ -162,6 +168,13 @@ def list():
             return
 
         events = list_events(db, user)
+
+        # Appliquer les filtres si demandés
+        if no_support:
+            events = [e for e in events if e.support_contact_id is None]
+        if mine:
+            events = [e for e in events if e.support_contact_id == user.id]
+
         if not events:
             console.print("\n[yellow]╭───────────────────────────────────────╮[/yellow]")
             console.print("[yellow]│ Aucun événement à afficher             │[/yellow]")

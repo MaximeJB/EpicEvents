@@ -10,7 +10,6 @@ from datetime import datetime, timedelta, UTC
 from argon2 import PasswordHasher
 import jwt
 
-from app.models import User
 
 SECRET_KEY = os.getenv("SECRET_KEY")
 ph = PasswordHasher()
@@ -173,7 +172,7 @@ def require_role(*allowed_roles):
                 return func(db, current_user, *args, **kwargs)
 
             if current_user.role.name not in allowed_roles:
-                raise PermissionError(f"L'utilisateur ne dispose pas du bon rôle pour cette action")
+                raise PermissionError("L'utilisateur ne dispose pas du bon rôle pour cette action")
             return func(db, current_user, *args, **kwargs)
 
         return wrapper

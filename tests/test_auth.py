@@ -26,7 +26,6 @@ from app.auth import (
     require_role,
     SECRET_KEY,
 )
-from app.models import User
 
 
 class TestPasswordHashing:
@@ -107,7 +106,7 @@ class TestJWTTokens:
 
     def test_decode_token_with_invalid_signature(self):
         """Test : decode_token lève une exception pour un token invalide."""
-        
+
         fake_token = jwt.encode({"user_id": 1}, "wrong_secret", algorithm="HS256")
 
         with pytest.raises(jwt.InvalidTokenError):
@@ -115,7 +114,7 @@ class TestJWTTokens:
 
     def test_decode_token_with_expired_token(self):
         """Test : decode_token lève une exception pour un token expiré."""
-        
+
         payload = {"user_id": 1, "role": "sales", "exp": datetime.utcnow() - timedelta(hours=1)}  # Expiré il y a 1h
         expired_token = jwt.encode(payload, SECRET_KEY, algorithm="HS256")
 
