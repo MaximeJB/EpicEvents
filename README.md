@@ -332,29 +332,12 @@ TOTAL                        290      1    99%
 
 La seule ligne non couverte (ligne 176 de auth.py) concerne le cas du superuser, qui est une feature edge non utilisée actuellement.
 
-### Rapport Flake8 (Qualité du Code)
-
-**33 erreurs mineures détectées** (principalement des problèmes de style)
-
-**Configuration** : Configuration souple avec règles PEP8 adaptées au projet
-
-**Répartition des erreurs** :
-- E111/E117 : Indentation (7 erreurs) - dans managers
-- E251 : Espaces autour du `=` (9 erreurs) - dans models.py
-- E231/E221/E222 : Espaces manquants (8 erreurs) - formatage mineur
-- F401 : Imports inutilisés (5 erreurs) - imports de type hints
-- E123/E126 : Indentation brackets (2 erreurs) - style
-- E722 : Bare except (1 erreur) - dans auth.py
-- E225 : Espace manquant autour opérateur (1 erreur)
-
-**Note** : Ces erreurs sont mineures et n'impactent pas le fonctionnement de l'application. Elles concernent principalement le formatage du code et des imports de documentation.
-
 **Commande pour reproduire** :
 ```bash
 flake8 app/ tests/ main.py --statistics --count
 ```
 
-**Configuration utilisée** : `.flake8` avec max-line-length=120 et règles souples
+**Configuration utilisée** : `.flake8` avec max-line-length=120 
 
 ## 📜 Licence
 
