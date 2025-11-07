@@ -1,5 +1,7 @@
 """Opérations CRUD pour les clients."""
 
+import re
+
 from app.auth import require_role
 from app.models import Client
 
@@ -23,7 +25,16 @@ def create_client(db, current_user, name, phone, company, email):
 
     Raises:
         PermissionError: Si le rôle n'est pas autorisé (sales ou gestion)
+        ValueError: Si les données sont invalides
     """
+    l
+    if not re.match(r'^[^@]+@[^@]+\.[^@]+$', email):
+        raise ValueError("Format email invalide")
+
+    
+    if not re.search(r'\d', phone):
+        raise ValueError("Le numéro de téléphone doit contenir des chiffres")
+
     client = Client(name=name, email=email, phone_number=phone, company_name=company, sales_contact_id=current_user.id)
     db.add(client)
     db.commit()
@@ -86,6 +97,15 @@ def update_client(db, current_user, client_id, **kwargs):
 
     if current_user.role.name == "sales" and client.sales_contact_id != current_user.id:
         raise PermissionError("L'utilisateur n'a pas la permission de faire ça")
+
+    
+    if 'email' in kwargs:
+        if not re.match(r'^[^@]+@[^@]+\.[^@]+$', kwargs['email']):
+            raise ValueError("Format email invalide")
+
+    if 'phone_number' in kwargs:
+        if not re.search(r'\d', kwargs['phone_number']):
+            raise ValueError("Le numéro de téléphone doit contenir des chiffres")
 
     for key, value in kwargs.items():
         if hasattr(client, key):

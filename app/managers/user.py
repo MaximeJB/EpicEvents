@@ -1,8 +1,11 @@
 """Opérations CRUD pour les utilisateurs."""
 
+import re
+
 import sentry_sdk
 
 from app.auth import hash_password, require_role
+from app.models import User
 
 
 @require_role("gestion")
@@ -23,7 +26,21 @@ def create_user(db, current_user, email, password, name, department, role_id):
 
     Raises:
         PermissionError: Si l'utilisateur n'est pas gestion
+        ValueError: Si les données sont invalides
     """
+    # Validation email
+    if not re.match(r'^[^@]+@[^@]+\.[^@]+$', email):
+        raise ValueError("Format email invalide")
+
+    # Validation mot de passe (minimum 8 caractères)
+    if len(password) < 8:
+        raise ValueError("Le mot de passe doit contenir au moins 8 caractères")
+
+    # Validation département
+    valid_departments = ['sales', 'support', 'gestion']
+    if department not in valid_departments:
+        raise ValueError(f"Le département doit être l'un des suivants : {', '.join(valid_departments)}")
+
     hashed_password = hash_password(password)
     new_user = User(email=email, password_hash=hashed_password, name=name, department=department, role_id=role_id)
     db.add(new_user)
@@ -100,6 +117,16 @@ def update_user(db, current_user, user_id, **kwargs):
     user = get_user_by_id(db, user_id)
     if not user:
         raise ValueError("User not found")
+
+    # Validation des nouvelles valeurs
+    if 'email' in kwargs:
+        if not re.match(r'^[^@]+@[^@]+\.[^@]+$', kwargs['email']):
+            raise ValueError("Format email invalide")
+
+    if 'department' in kwargs:
+        valid_departments = ['sales', 'support', 'gestion']
+        if kwargs['department'] not in valid_departments:
+            raise ValueError(f"Le département doit être l'un des suivants : {', '.join(valid_departments)}")
 
     for key, value in kwargs.items():
         if hasattr(user, key):

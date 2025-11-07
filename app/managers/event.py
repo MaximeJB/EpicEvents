@@ -25,7 +25,7 @@ def create_event(db, current_user, start_date, end_date, location, attendees, co
 
     Raises:
         PermissionError: Si l'utilisateur n'est pas sales ou si le client n'est pas le sien
-        ValueError: Si le contrat n'existe pas ou n'est pas signé
+        ValueError: Si le contrat n'existe pas, n'est pas signé ou données invalides
     """
     contract = get_contract(db, contract_id)
     if not contract:
@@ -34,6 +34,14 @@ def create_event(db, current_user, start_date, end_date, location, attendees, co
         raise ValueError("Le contrat doit être signé")
     if contract.client.sales_contact_id != current_user.id:
         raise PermissionError("Vous ne pouvez créer un événements que pour vos client")
+
+    
+    if start_date >= end_date:
+        raise ValueError("La date de début doit être antérieure à la date de fin")
+
+    
+    if attendees <= 0:
+        raise ValueError("Le nombre de participants doit être positif")
 
     event = Event(
         start_date=start_date,
@@ -85,6 +93,17 @@ def update_event(db, current_user, event_id, **kwargs):
     if current_user.role.name == "support":
         if event.support_contact_id != current_user.id:
             raise PermissionError("Vous ne pouvez modifier un événements que pour vos client")
+
+    
+    if 'attendees' in kwargs:
+        if kwargs['attendees'] <= 0:
+            raise ValueError("Le nombre de participants doit être positif")
+
+    
+    new_start = kwargs.get('start_date', event.start_date)
+    new_end = kwargs.get('end_date', event.end_date)
+    if new_start >= new_end:
+        raise ValueError("La date de début doit être antérieure à la date de fin")
 
     for (
         key,

@@ -18,6 +18,7 @@ from app.managers.event import (
     list_events,
     update_event,
 )
+from app.models import User
 from app.managers.contract import create_contract, update_contract
 from app.managers.client import create_client
 

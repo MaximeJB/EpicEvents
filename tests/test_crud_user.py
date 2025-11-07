@@ -12,6 +12,7 @@ Ces tests couvrent :
 import pytest
 from app.managers.user import create_user, get_user, get_user_by_id, list_users, update_user, delete_user
 from app.auth import verify_password
+from app.models import User
 
 
 class TestCreateUser:
@@ -88,9 +89,9 @@ class TestUserCRUDIntegration:
 
     def test_can_create_multiple_users(self, db_session, role_sales, user_gestion):
         """Test : peut créer plusieurs utilisateurs."""
-        user1 = create_user(db_session, user_gestion, "user1@test.com", "pass1", "User 1", "sales", role_sales.id)
-        user2 = create_user(db_session, user_gestion, "user2@test.com", "pass2", "User 2", "sales", role_sales.id)
-        user3 = create_user(db_session, user_gestion, "user3@test.com", "pass3", "User 3", "sales", role_sales.id)
+        user1 = create_user(db_session, user_gestion, "user1@test.com", "password1", "User 1", "sales", role_sales.id)
+        user2 = create_user(db_session, user_gestion, "user2@test.com", "password2", "User 2", "sales", role_sales.id)
+        user3 = create_user(db_session, user_gestion, "user3@test.com", "password3", "User 3", "sales", role_sales.id)
 
 
         assert user1 is not None
@@ -104,10 +105,10 @@ class TestUserCRUDIntegration:
         """Test : deux utilisateurs ne peuvent pas avoir le même email."""
         from sqlalchemy.exc import IntegrityError
 
-        create_user(db_session, user_gestion, "duplicate@test.com", "pass1", "User 1", "sales", role_sales.id)
+        create_user(db_session, user_gestion, "duplicate@test.com", "password1", "User 1", "sales", role_sales.id)
 
         with pytest.raises(IntegrityError):
-            create_user(db_session, user_gestion, "duplicate@test.com", "pass2", "User 2", "sales", role_sales.id)
+            create_user(db_session, user_gestion, "duplicate@test.com", "password2", "User 2", "sales", role_sales.id)
 
 
 class TestGetUser:
@@ -175,11 +176,11 @@ class TestUpdateUser:
             current_user=user_gestion,
             user_id=user_sales.id,
             name="Updated Sales User",
-            department="marketing",
+            department="support",
         )
 
         assert updated.name == "Updated Sales User"
-        assert updated.department == "marketing"
+        assert updated.department == "support"
         assert updated.email == "sales@test.com"  # Inchangé
 
     def test_gestion_can_update_user_role(self, db_session, user_gestion, user_sales, role_support):

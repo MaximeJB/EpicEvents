@@ -240,10 +240,10 @@ class TestE2EGestionWorkflow:
 
 
         with patch("app.managers.user.sentry_sdk.capture_message"):
-            sales1 = create_user(db_session, gestion_user, "sales1@epic.com", "pass", "Sales 1", "sales", role_sales.id)
-            sales2 = create_user(db_session, gestion_user, "sales2@epic.com", "pass", "Sales 2", "sales", role_sales.id)
+            sales1 = create_user(db_session, gestion_user, "sales1@epic.com", "password123", "Sales 1", "sales", role_sales.id)
+            sales2 = create_user(db_session, gestion_user, "sales2@epic.com", "password123", "Sales 2", "sales", role_sales.id)
             support1 = create_user(
-                db_session, gestion_user, "support1@epic.com", "pass", "Support 1", "support", role_support.id
+                db_session, gestion_user, "support1@epic.com", "password123", "Support 1", "support", role_support.id
             )
 
 
@@ -289,21 +289,21 @@ class TestE2EPermissionsWorkflow:
 
         gestion_user = User(
             email="gestion@epic.com",
-            password_hash=hash_password("pass"),
+            password_hash=hash_password("password123"),
             name="Gestion",
             department="gestion",
             role_id=role_gestion.id,
         )
         sales1 = User(
             email="sales1@epic.com",
-            password_hash=hash_password("pass"),
+            password_hash=hash_password("password123"),
             name="Sales 1",
             department="sales",
             role_id=role_sales.id,
         )
         sales2 = User(
             email="sales2@epic.com",
-            password_hash=hash_password("pass"),
+            password_hash=hash_password("password123"),
             name="Sales 2",
             department="sales",
             role_id=role_sales.id,

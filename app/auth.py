@@ -10,6 +10,8 @@ from datetime import datetime, timedelta, UTC
 from argon2 import PasswordHasher
 import jwt
 
+from app.models import User
+
 
 SECRET_KEY = os.getenv("SECRET_KEY")
 ph = PasswordHasher()

@@ -10,7 +10,7 @@ Ces tests couvrent :
 
 import pytest
 from app.managers.client import create_client, get_client, list_clients, update_client
-from app.models import Client
+from app.models import Client, User
 
 
 class TestCreateClient:

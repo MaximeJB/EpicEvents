@@ -11,6 +11,7 @@ Ces tests couvrent :
 import pytest
 from decimal import Decimal
 from app.managers.contract import create_contract, get_contract, list_contracts, update_contract
+from app.models import User
 
 
 class TestCreateContract:

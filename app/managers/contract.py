@@ -24,11 +24,22 @@ def create_contract(db, current_user, status, total_amount, remaining_amount, cl
 
     Raises:
         PermissionError: Si l'utilisateur n'est pas gestion
-        ValueError: Si le client n'existe pas
+        ValueError: Si le client n'existe pas ou données invalides
     """
     client = get_client(db, client_id)
     if not client:
         raise ValueError("Client not found")
+
+    
+    if total_amount <= 0:
+        raise ValueError("Le montant total doit être positif")
+
+    if remaining_amount < 0:
+        raise ValueError("Le montant restant ne peut être négatif")
+
+    if remaining_amount > total_amount:
+        raise ValueError("Le montant restant ne peut dépasser le montant total")
+
     contract = Contract(
         status=status, total_amount=total_amount, remaining_amount=remaining_amount, client_id=client_id
     )
@@ -74,6 +85,25 @@ def update_contract(db, current_user, contract_id, **kwargs):
 
     if current_user.role.name == "sales" and contract.client.sales_contact_id != current_user.id:
         raise PermissionError("L'utilisateur n'a pas la permission de faire ça")
+
+    
+    if 'status' in kwargs:
+        if kwargs['status'] not in ['pending', 'signed']:
+            raise ValueError("Le statut doit être 'pending' ou 'signed'")
+
+    if 'total_amount' in kwargs:
+        if kwargs['total_amount'] <= 0:
+            raise ValueError("Le montant total doit être positif")
+
+    if 'remaining_amount' in kwargs:
+        if kwargs['remaining_amount'] < 0:
+            raise ValueError("Le montant restant ne peut être négatif")
+
+    
+    new_total = kwargs.get('total_amount', contract.total_amount)
+    new_remaining = kwargs.get('remaining_amount', contract.remaining_amount)
+    if new_remaining > new_total:
+        raise ValueError("Le montant restant ne peut dépasser le montant total")
 
     old_status = contract.status
 
