@@ -208,29 +208,32 @@ EpicEvents/
 │   ├── models.py              # Modèles SQLAlchemy (User, Client, Contract, Event)
 │   ├── auth.py                # Authentification JWT + Argon2
 │   ├── db.py                  # Configuration base de données
+│   ├── cli_app.py             # Configuration CLI Click
 │   │
-│   ├── crud/                  # Opérations CRUD
-│   │   ├── crud_user.py
-│   │   ├── crud_client.py
-│   │   ├── crud_contract.py
-│   │   └── crud_event.py
+│   ├── managers/              # Couche d'accès aux données (Data Access Layer)
+│   │   ├── __init__.py
+│   │   ├── user.py            # Opérations CRUD utilisateurs
+│   │   ├── client.py          # Opérations CRUD clients
+│   │   ├── contract.py        # Opérations CRUD contrats
+│   │   └── event.py           # Opérations CRUD événements
 │   │
-│   └── views/                 # Interface CLI
-│       ├── auth_cli.py        # Commandes login/logout/whoami
-│       ├── client_cli.py      # Commandes client
-│       ├── contract_cli.py    # Commandes contrat
-│       ├── event_cli.py       # Commandes événement
-│       ├── user_cli.py        # Commandes collaborateur
-│       └── main_menu.py       # Menu principal interactif
+│   └── views/                 # Interface CLI (Couche présentation)
+│       ├── __init__.py
+│       ├── auth.py            # Commandes login/logout/whoami
+│       ├── client.py          # Commandes client
+│       ├── contract.py        # Commandes contrat
+│       ├── event.py           # Commandes événement
+│       └── user.py            # Commandes collaborateur
 │
-├── tests/                     # Tests unitaires et d'intégration
+├── tests/                     # Tests unitaires et d'intégration (129 tests, 99% coverage)
 │   ├── conftest.py            # Fixtures pytest
-│   ├── test_auth.py
-│   ├── test_models.py
-│   ├── test_crud_user.py
-│   ├── test_crud_client.py
-│   ├── test_crud_contract.py
-│   └── test_crud_event.py
+│   ├── test_auth.py           # Tests authentification et autorisation
+│   ├── test_models.py         # Tests modèles de données
+│   ├── test_crud_user.py      # Tests CRUD utilisateurs
+│   ├── test_crud_client.py    # Tests CRUD clients
+│   ├── test_crud_contract.py  # Tests CRUD contrats
+│   ├── test_crud_event.py     # Tests CRUD événements
+│   └── test_e2e_workflow.py   # Tests end-to-end workflows
 │
 ├── main.py                    # Point d'entrée principal
 ├── init_db.py                 # Script d'initialisation DB
