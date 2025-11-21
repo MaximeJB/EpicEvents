@@ -313,8 +313,6 @@ class TestE2EPermissionsWorkflow:
 
 
         client1 = create_client(db_session, sales1, "Client Sales 1", "+111", "Corp1", "s1@test.com")
-
-
         client2 = create_client(db_session, sales2, "Client Sales 2", "+222", "Corp2", "s2@test.com")
 
 

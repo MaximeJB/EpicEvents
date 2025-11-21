@@ -8,10 +8,13 @@ import os
 from datetime import datetime, timedelta, UTC
 
 from argon2 import PasswordHasher
+from dotenv import load_dotenv
 import jwt
 
 from app.models import User
 
+# Charger les variables d'environnement
+load_dotenv()
 
 SECRET_KEY = os.getenv("SECRET_KEY")
 ph = PasswordHasher()

@@ -27,11 +27,11 @@ def create_client(db, current_user, name, phone, company, email):
         PermissionError: Si le rôle n'est pas autorisé (sales ou gestion)
         ValueError: Si les données sont invalides
     """
-    l
+    # Validation email
     if not re.match(r'^[^@]+@[^@]+\.[^@]+$', email):
         raise ValueError("Format email invalide")
 
-    
+    # Validation téléphone (doit contenir des chiffres)
     if not re.search(r'\d', phone):
         raise ValueError("Le numéro de téléphone doit contenir des chiffres")
 
@@ -98,7 +98,7 @@ def update_client(db, current_user, client_id, **kwargs):
     if current_user.role.name == "sales" and client.sales_contact_id != current_user.id:
         raise PermissionError("L'utilisateur n'a pas la permission de faire ça")
 
-    
+    # Validation des nouvelles valeurs
     if 'email' in kwargs:
         if not re.match(r'^[^@]+@[^@]+\.[^@]+$', kwargs['email']):
             raise ValueError("Format email invalide")
