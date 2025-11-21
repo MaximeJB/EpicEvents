@@ -51,8 +51,8 @@ def create():
                 console.print("[red]│ ✗ Client non trouvé avec cet ID       │[/red]")
                 console.print("[red]╰───────────────────────────────────────╯[/red]\n")
                 return
-            total_amount = click.prompt("Entrez le montant total du contrat", type=int)
-            remaining_amount = click.prompt("Entrez le montant restant à honorer sur ce contrat", type=int)
+            total_amount = click.prompt("Entrez le montant total du contrat", type=click.IntRange(min=0))
+            remaining_amount = click.prompt("Entrez le montant restant à honorer sur ce contrat", type=click.IntRange(min=0))
             status_choice = click.prompt("Entrez le status du contrat : 's' pour signé, 'a' pour en attente")
             if status_choice == "s":
                 status = "signed"

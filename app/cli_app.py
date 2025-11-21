@@ -6,6 +6,7 @@ mémoriser les commandes Click.
 """
 
 import os
+import re
 from datetime import datetime
 from decimal import Decimal
 
@@ -37,6 +38,11 @@ from app.db import SessionLocal
 from app.models import Role
 
 console = Console()
+
+
+def validate_email(email):
+    pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+    return re.match(pattern, email) is not None
 
 
 def clear_screen():
@@ -228,6 +234,14 @@ def action_create_client():
 
     name = Prompt.ask("Nom du client")
     email = Prompt.ask("Email")
+
+    if not validate_email(email):
+        console.print("\n[red]╭───────────────────────────────────────╮[/red]")
+        console.print("[red]│ ✗ Email invalide                       │[/red]")
+        console.print("[red]╰───────────────────────────────────────╯[/red]\n")
+        Prompt.ask("\nAppuyez sur Entrée pour continuer")
+        return
+
     phone = Prompt.ask("Téléphone")
     company = Prompt.ask("Nom de l'entreprise")
 

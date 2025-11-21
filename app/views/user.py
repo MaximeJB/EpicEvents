@@ -1,6 +1,7 @@
 """Groupe composé de toutes les possibilités des collaborateurs."""
 
 from getpass import getpass
+import re
 
 import click
 from rich.console import Console
@@ -19,6 +20,11 @@ from app.db import SessionLocal
 from app.models import Role
 
 console = Console()
+
+
+def validate_email(email):
+    pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+    return re.match(pattern, email) is not None
 
 
 @click.group()
@@ -53,6 +59,13 @@ def create():
 
         name = click.prompt("Nom du collaborateur")
         email = click.prompt("Email")
+
+        if not validate_email(email):
+            console.print("\n[red]╭───────────────────────────────────────╮[/red]")
+            console.print("[red]│ ✗ Email invalide                       │[/red]")
+            console.print("[red]╰───────────────────────────────────────╯[/red]\n")
+            return
+
         password = getpass("Mot de passe temporaire : ")
         department = click.prompt("Département (sales/support/gestion)")
 
@@ -180,6 +193,12 @@ def update():
         email = click.prompt("Nouvel email", default="", show_default=False)
         department = click.prompt("Nouveau département", default="", show_default=False)
         role_name = click.prompt("Nouveau rôle (sales/support/gestion)", default="", show_default=False)
+
+        if email and not validate_email(email):
+            console.print("\n[red]╭───────────────────────────────────────╮[/red]")
+            console.print("[red]│ ✗ Email invalide                       │[/red]")
+            console.print("[red]╰───────────────────────────────────────╯[/red]\n")
+            return
 
         kwargs = {}
         if name:

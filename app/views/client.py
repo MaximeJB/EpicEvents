@@ -1,6 +1,7 @@
 """Commandes CLI pour la gestion des clients."""
 
 import logging
+import re
 
 import click
 from rich.console import Console
@@ -13,6 +14,11 @@ from app.db import SessionLocal
 
 logger = logging.getLogger(__name__)
 console = Console()
+
+
+def validate_email(email):
+    pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+    return re.match(pattern, email) is not None
 
 
 @click.group()
@@ -40,6 +46,13 @@ def create():
             phone = click.prompt("Entrez le téléphone du client")
             company = click.prompt("Entrez le nom de l'entreprise du client")
             email = click.prompt("Entre l'email du client : ")
+
+            if not validate_email(email):
+                console.print("\n[red]╭───────────────────────────────────────╮[/red]")
+                console.print("[red]│ ✗ Email invalide                       │[/red]")
+                console.print("[red]╰───────────────────────────────────────╯[/red]\n")
+                return
+
             try:
                 new_client = create_client(db, current_user=user, name=name, phone=phone, company=company, email=email)
                 console.print("\n[green]╭───────────────────────────────────────╮[/green]")
@@ -137,6 +150,12 @@ def update():
         email = click.prompt("Nouvel email", default="", show_default=False)
         phone = click.prompt("Nouveau téléphone", default="", show_default=False)
         company = click.prompt("Nouvelle entreprise", default="", show_default=False)
+
+        if email and not validate_email(email):
+            console.print("\n[red]╭───────────────────────────────────────╮[/red]")
+            console.print("[red]│ ✗ Email invalide                       │[/red]")
+            console.print("[red]╰───────────────────────────────────────╯[/red]\n")
+            return
 
         kwargs = {}
         if name:
